@@ -1,0 +1,61 @@
+'acceptrate':80,
+'person':["%wounded %person"],
+'target':['%name the %person'],
+'task':['%action-evil'],
+'reward':['gold'],
+'penalty':['%a-cloth %cloth'],
+'type':'revenge',
+'text':
+[
+	('You notice a @person1 lying on ground:',0),
+	("@person1: H...help me, @target1 wanted to %action-evil me!",0)
+],
+'refuse':
+[
+	[
+		("%action-evil|ing @person!",7),
+		("You: I am soooooo bad!",0),
+		("You receive @penalty",0),
+		("blood-stained @penalty",-1)
+	],
+	[
+		("You: I want to see you die!",0),
+		("@person1: You are so evil!",0),
+		("Watching @person1 die...",15),
+		("You receive @penalty1",0),
+		("@penalty1",-1)
+	],
+	[
+		("Sorry, I can't do that.",0),
+		("@person1: ...",0)
+	]
+],
+'accept':
+[
+	("You: Ok, I'll @task1 that %person-insult!",0),
+	("Looking for @target1",5),
+],
+'outcome':
+[
+	[
+		("@task1|ing @target1",10),
+		("Returning to @person1",3),
+		("@person1: Thank you!",0),
+		("You receive @reward",0),
+		("@reward1",-1)
+	],
+	[
+		("@task1|ing @target1",2),
+		("Returning to @person1",4),
+		("You: That was a piece of cake!",0),
+		("@person1: Ah, you're so %a-good!",0),
+		("You receive @reward and a %action-thanks",0),
+		("@reward1",-1)
+	],
+	[
+		("You see who you was supposed to face and decide to run away!",0),
+		("@target1: Hey, wait you %a-bad %person-bad!",0),
+		("Running away...",7),
+		("You safely get away",0)
+	]
+]
