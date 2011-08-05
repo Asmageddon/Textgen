@@ -6,11 +6,13 @@
 'a-body':['strong','large','weak','small','enormous','mutated'],
 'a-cloth':['torn','old','withered','dirty','charred'],
 'a-death':['brutal','gruesome','bloody','messy','painful'],
-'action':['action-kill','action-fetch','interaction'],
+'a-mad':['insane','mad','lunatic','crazy'],
+'action':['action-kill','action-daily','action-fetch','interaction'],
+'action-daily':['consume','defecate','sleep','eat','drink'],
 'action-evil':['action-kill','torture','beat','insult','humiliate','rape'],
-'action-fetch':['bring','fetch','find','retrieve','steal'],
+'action-fetch':['bring','fetch','find','retrieve','steal','collect','get','obtain'],
 'action-kill':['kill','obliterate','drown','erase','destroy','crush','burn','murder'],
-'action-thanks':['hug','kiss','thank you'],
+'action-thanks':['hug','kiss','thank you','!%number points of appreciation'],
 'adjective':['color','a-mind','a-body','a-appearance','a-bad'],
 'a-evil':['foul','evil','vile','dark','bloodstained','hellish'],
 'a-good':['strong','smart','powerfull','brave','mighty','wonderfull'],
@@ -45,7 +47,7 @@
 
 'defense':['armor','shield'],
 'demon':['!%animal demon','!demonic %bodypart','balrog'],
-'dessert':['!%sweet cake','!%fruit jelly','!%sweet %cookie','!%sweet ice cream'],
+'dessert':['!%sweet cake','!%fruit jelly','!%sweet %cookie','!%sweet ice cream','!%sweet parfait'],
 'disagree':["I can't do that",'!never, %person-bad','NO!','sorry but no'],
 'disease':['acid reflux disease ', 'acne ', 'allergies ', 'antisocial personality disorder ', 'attention deficit disorder ', 'altitude sickness ', "alzheimer's disease ", 'andropause ', 'anorexia nervosa ', 'arthritis ', 'aspergers syndrome ', 'asthma ', 'autism ', 'avoidant personality disorder ', 'back pain ', 'bad breath ', 'baldness ', 'bedwetting ', 'bipolar disorder ', 'bladder cancer ', 'body dysmorphic disorder ', 'bone cancer ', 'borderline personality disorder ', 'brain cancer ', 'breast cancer ', 'brain tumors ', 'brain injury ', 'bronchitis ', 'burns ', 'bursitis ', 'cancer ', 'canker sores sores) ', 'carpal tunnel syndrome ', 'celiac disease ', 'cervical cancer ', 'cholesterol ', 'chronic obstructive pulmonary disease ', 'colon cancer ', 'congestive heart failure ', 'cradle cap ', "crohn's disease ", 'dandruff ', 'deep vein thrombosis ', 'dehydration ', 'dependent personality disorder ', 'depression ', 'diabetes ', 'diaper rash ', 'diarrhea ', 'disabilities ', 'diverticulitis ', 'down syndrome ', 'drug abuse ', 'dysfunctional uterine bleeding ', 'dyslexia ', 'ear infections ', 'ear problems ', 'eating disorders ', 'eczema ', 'endometriosis ', 'enlarged prostate ', 'epilepsy ', 'erectile dysfunction ', 'eye problems ', 'fibromyalgia ', 'fracture ', 'freckles ', 'flu ', 'gallbladder disease ', 'gallstones ', 'generalized anxiety disorder ', 'genital herpes ', 'genital warts ', 'glomerulonephritis ', 'gonorrhea ', 'gout ', 'gum diseases ', 'gynecomastia ', 'head lice ', 'headache ', 'hearing loss ', 'heart attacks ', 'heart disease ', 'heartburn ', 'heat stroke ', 'heel pain ', 'hemorrhage ', 'hemorrhoids ', 'hepatitis ', 'herniated discs ', 'hiatal hernia hernia) ', 'histrionic personality disorder ', 'hiv/aids ', 'hives ', 'hyperglycemia blood sugar) ', 'hyperkalemia potassium) ', 'hypertension blood pressure) ', 'hyperthyroidism ', 'hypothyroidism ', 'infectious diseases ', 'infectious mononucleosis fever) ', 'influenza ', 'infertility ', 'insulin dependent diabetes mellitus ', 'iron deficiency anemia ', 'irritable bowel syndrome ', 'irritable male syndrome ', 'itching ', 'joint pain ', 'juvenile diabetes ', 'juvenile rheumatoid arthritis ', 'kidney diseases ', 'kidney stones calculi) ', 'leukemia ', 'liver cancer - hepatocellular carcinoma ', 'lung cancer ', 'mad cow disease ', 'malaria ', 'melena in stool) ', 'memory loss ', 'menopause ', 'mesothelioma ', 'migraine ', 'miscarriages ', 'mucus in stool ', 'multiple personality disorder ', 'multiple sclerosis ', 'muscle cramps ', 'muscle fatigue ', 'muscle pain ', 'nail biting ', 'narcissistic personality disorder ', 'neck pain ', 'obesity ', 'obsessive compulsive disorder ', 'osteoarthritis ', 'osteomyelitis ', 'osteoporosis ', 'ovarian cancer ', 'ovarian cyst ', 'pain ', 'panic attack ', 'paranoid personality disorder ', "parkinson's disease ", 'penis enlargement ', 'peripheral artery disease ', 'personality disorders ', 'peptic ulcers ', 'pervasive developmental disorder ', "peyronie's disease ", 'phobias ', 'pink eye ', 'polio ', 'pneumonia ', 'post nasal drip ', 'post traumatic stress disorder ', 'premature baby ', 'premenstrual syndrome ', 'propecia ', 'prostate cancer ', 'psoriasis ', 'reactive attachment disorder ', 'renal failure ', 'restless legs syndrome ', 'rheumatoid arthritis ', 'rheumatic fever ', 'ringworm ', 'rosacea ', 'rotator cuff ', 'scabies ', 'scars ', 'sciatica ', 'severe acute respiratory syndrome ', 'schizoid personality disorder ', 'schizophrenia ', 'sexually transmitted disease ', 'sinus infections ', 'skin cancer ', 'skin rash ', 'sleep disorders apnea) ', 'smallpox ', 'snoring ', 'social anxiety ', 'staph infection ', 'stomach cancer ', 'strep throat throat) ', 'sudden infant death syndrome ', 'sunburn ', 'syphilis ', 'systemic lupus erythematosus ', 'tennis elbow ', 'termination of pregnancy ', 'testicular cancer ', 'tooth decay ', 'trisomy syndrome ', 'tuberculosis ', 'ulcers ', 'urinary tract infection ', 'varicose veins ', 'vertigo ', 'warts ', 'williams syndrome ', 'yeast infection ', 'yellow fever '],
 'dish':['noodle','food-liquid'],
@@ -119,6 +121,7 @@
 'person-n':['commoner','citizen','villager','lawyer'],
 'person':['person-f','person-m','person-n'],
 'person-u':['killer','thief','burglar','beggar'],
+'person-who':['you','her','him','it','them','us','everybody'],
 'pokeffective':['not effective at all','not very effective','super-effective'],
 'polearm':['halberd','lance','pike','spear','glaive','fork'],
 'powder':['black powder','spice','curry','sand','gravel','nanomachines','powder water'],
@@ -137,6 +140,7 @@
 'siege-engine':['catapult','cannon','battering ram','siege tower','ballista','trebuchet'],
 'snack':['!%sweet cookie','!%sweet bar','!%fruit|-flavored sweets'],
 'sport':['basketball','soccer','football','hockey','tennis','witch hunting','paintball'],
+'sport-type':['normal','death','hardcore','HARDCORE','nocturnal'],
 'stone':['rock','silicon','obsidian','concrete','marble','adamantite','basalt','gabbro','granite','quartz'],
 'sweet':['fruit','chocolate','vanilla'],
 
@@ -151,6 +155,11 @@
 'vegetable':['cabbage','carrot','potato','tomato','bean','chili pepper','lettuce','cucumber','pumpkin'],
 'vehicle':['ship','siege-engine'],
 
+'w-ask':['question','riddle','query'],
+'w-creator':['creator','maker','manufacturer','producer'],
+'w-equipment':['equipment','gear'],
+'w-equipment-storage':['armory','barracks','forge'],
+'w-rich':['wealthy','rich','successful'],
 'weapon':['cut','blunt','polearm','weapon-ranged','weapon-thrown','firearm'],
 'weapon-ranged':['bow','longbow','recurve bow','crossbow','arbalest','repeating crossbow','sling','arm crossbow','firearm'],
 'weapon-thrown':['cutlery','shuriken','throwing knife','stone','grenade','javelin','throwing axe','tomahawk'],
@@ -200,5 +209,8 @@
 'sp-b':['morphosis','kinesis','portation'],
 
 'physical-property':['mass','velocity','speed','acceleration','density','position','shape'],
-'abstract-concept':['truth','time','space','vector','electricity','mind']
+'abstract-concept':['truth','time','space','vector','electricity','mind'],
+
+'willing-to':['willing','eager','anxious','ready']
+
 }
