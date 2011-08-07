@@ -17,7 +17,7 @@ s+=["%action-fetch everything valuable you can find in %name|'s %building."]
 s+=["I want you to kill %adjective %animal that has been rampaging around the %loc-civ"]
 s+=["A %adjective %animal drank a %cont-liquid of my finest %alcohol, %action-kill that %person-addict!"]
 s+=["I need %animal %bone for a %jewelery, I will give you one of my %crystal|es"]
-s+=["I WANT BLOOD! %action-kill or %action-kill every single %animal, %animal and %monster you can find!"]
+s+=["I want %w-carnage! %action-kill or %action-kill every single %animal, %animal and %monster you can find!"]
 s+=["Know %name, the %person? Don't ask %w-ask|s, and you'll get %w-rich in no time"]
 s+=["That %name! He dares to insult me about my fine %item! %action-evil him"]
 s+=["%name, that %a-mad %w-creator of %adjective %item must be killed."]
@@ -57,6 +57,10 @@ s+=["%monster %relatives will %action %person-who as they did in %year with %any
 s+=["spam time! %anything %anything %anything %anything"]
 def sentence():
 	return n.GetText(random.choice(s))
+
+def text(string):
+	print string, string.__class__
+	return n.GetText(string)
 
 if __name__=="__main__":
 	for a in s: print n.GetText(a)

@@ -47,18 +47,46 @@ class Data:
 
 class MyPurpleInterface:
 	def __init__(self):
-		data = {}
-	def receive(self, account, rec, message, conv, flags):
+		self.data = {}
+		self.counter = 0
+	def received(self, account, rec, message, conv, flags):
 		print account, rec, message
 		conversation = purple.PurpleConvIm(conv)
 		if message[-1]!=" ":
-			purple.PurpleConvImSend(conversation, lolwut.sentence())
+			if len(message)>1 and message[0]=="!":
+				purple.PurpleConvImSend(conversation,lolwut.text(message[1:]))
+			else:
+				if self.counter:
+					purple.PurpleConvImSend(conversation, lolwut.sentence())
+	def sending(self, account, receiver, message):
+		pieces = message.split(' ')
+		print message, pieces
+		conv = purple.PurpleFindConversationWithAccount(4, receiver, account)
+		conversation = purple.PurpleConvIm(conv)
+		if len(message)>1 and message[0]=="!":
+			purple.PurpleConvImSend(conversation,lolwut.text(message[1:]))
+		elif len(pieces)==3:
+			if pieces[0]=="set":
+				exec("self.%s = %s" % (pieces[1], pieces[2]) )
+		elif len(pieces)==2:
+			if pieces[0]=="go":
+				try:
+					n = int(pieces[1])
+					for i in range(0,n):
+						print i+1,"/",n
+						purple.PurpleConvImSend(conversation, lolwut.sentence())
+				except:
+					pass
 
 p = MyPurpleInterface()
 
-bus.add_signal_receiver(p.receive,
+bus.add_signal_receiver(p.received,
                         dbus_interface="im.pidgin.purple.PurpleInterface",
                         signal_name="ReceivedImMsg")
+
+bus.add_signal_receiver(p.sending,
+                        dbus_interface="im.pidgin.purple.PurpleInterface",
+                        signal_name="SendingImMsg")
 
 loop = gobject.MainLoop()
 loop.run()

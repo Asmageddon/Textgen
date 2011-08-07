@@ -211,6 +211,7 @@
 'physical-property':['mass','velocity','speed','acceleration','density','position','shape'],
 'abstract-concept':['truth','time','space','vector','electricity','mind'],
 
-'willing-to':['willing','eager','anxious','ready']
+'willing-to':['willing','eager','anxious','ready'],
+'w-carnage':['blood', 'carnage', 'death']
 
 }
