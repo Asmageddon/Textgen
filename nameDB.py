@@ -4,7 +4,7 @@ def fc(filename):
 	mission=[]
 	mission+=[eval( "{"+open(os.path.join("data","mission", filename),"r").read()+"}" )]
 
-word = eval(open(os.path.join("data", "words")).read())
+words = eval(open(os.path.join("data", "words")).read())
 
 def FormatText(string):
 	lastchar=''
@@ -13,34 +13,7 @@ def FormatText(string):
 		if char in [',','.','!',';','?',':',' ',chr(10)] and lastchar!=char: result+=char
 		lastchar=char
 	return result
-def GetMission(mission):
-	target=[]
-	person=[]
-	task=[]
-	reward=[]
-	penalty=[]
-	everything=[]
-	for a in mission['target']:
-		target+=[GetText(a)]
-	for a in mission['person']:
-		person+=[GetText(a)]
-	for a in mission['task']:
-		task+=[GetText(a)]
-	for a in mission['reward']:
-		reward+=[GetText(a)]
-	for a in mission['penalty']:
-		penalty+=[GetText(a)]
-	for text in mission['text']:
-		everything+=[(GetText(text[0],mdata=(target,person,task,reward,penalty)),text[1])]
-	if   random.randint(0,100)<=mission['acceptrate']:
-		for text in mission['accept']:
-			everything+=[(GetText(text[0],mdata=(target,person,task,reward,penalty)),text[1])]
-		for text in random.choice(mission['outcome']):
-			everything+=[(GetText(text[0],mdata=(target,person,task,reward,penalty)),text[1])]
-	else:
-		for text in random.choice(mission['refuse']):
-			everything+=[(GetText(text[0],mdata=(target,person,task,reward,penalty)),text[1])]
-	return everything
+
 def GetText(string,mdata=None):
 	#print string
 	string+=chr(10)
@@ -104,24 +77,3 @@ def GetText(string,mdata=None):
 			elif mode==2: i+=char
 		else: current+=char
 	return result
-def GetWord(text):
-	lword=''
-	r=1
-	while r:
-		if word.has_key(text):
-			if len(word[text])>0:
-				lword=text
-				text=random.choice(word[text])
-			else: r=0
-		elif text=='|': return lword
-		elif text=='anything': lword=text;text=random.choice(word.keys())
-		elif text=='name': lword=text;text=name.generate('name')
-		elif text=='digit': lword=text;text=chr(random.randint(ord('0'),ord('9')))
-		elif text=='digit-n0': lword=text;text=chr(random.randint(ord('1'),ord('9')))
-		elif text=='letter': lword=text;text=chr(random.randint(ord('a'),ord('z')))
-		elif text=='year': lword=text;text=str(random.randint(1600,1850))
-		else: r=0
-	if len(text)>0:
-		if text[0]=="!":
-			text=GetText(text[1:])
-	return text

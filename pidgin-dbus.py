@@ -1,5 +1,6 @@
 import random
 import dbus, gobject
+import time
 from dbus.mainloop.glib import DBusGMainLoop
 
 import lolwut
@@ -47,6 +48,7 @@ class Data:
 
 class MyPurpleInterface:
 	def __init__(self):
+		self.spam = 0
 		self.data = {}
 		self.counter = 0
 	def received(self, account, rec, message, conv, flags):
@@ -56,14 +58,15 @@ class MyPurpleInterface:
 			if len(message)>1 and message[0]=="!":
 				purple.PurpleConvImSend(conversation,lolwut.text(message[1:]))
 			else:
-				if self.counter:
-					purple.PurpleConvImSend(conversation, lolwut.sentence())
+				self.spam+=self.counter
+				self.sent(account,rec, " ")
 	def sending(self, account, receiver, message):
 		pieces = message.split(' ')
-		print message, pieces
+		#print message, account, receiver
 		conv = purple.PurpleFindConversationWithAccount(4, receiver, account)
 		conversation = purple.PurpleConvIm(conv)
 		if len(message)>1 and message[0]=="!":
+			#print '"' + message[1:] + '"'
 			purple.PurpleConvImSend(conversation,lolwut.text(message[1:]))
 		elif len(pieces)==3:
 			if pieces[0]=="set":
@@ -72,11 +75,17 @@ class MyPurpleInterface:
 			if pieces[0]=="go":
 				try:
 					n = int(pieces[1])
-					for i in range(0,n):
-						print i+1,"/",n
-						purple.PurpleConvImSend(conversation, lolwut.sentence())
+					self.spam+=n
+					self.sent(account,receiver, " ")
 				except:
 					pass
+	def sent(self, account, receiver, message):
+		conv = purple.PurpleFindConversationWithAccount(4, receiver, account)
+		conversation = purple.PurpleConvIm(conv)
+		if message[-1]==" " and self.spam > 0:
+			self.spam-=1
+			print self.spam, "left"
+			purple.PurpleConvImSend(conversation, lolwut.sentence()+" ")
 
 p = MyPurpleInterface()
 
@@ -87,6 +96,10 @@ bus.add_signal_receiver(p.received,
 bus.add_signal_receiver(p.sending,
                         dbus_interface="im.pidgin.purple.PurpleInterface",
                         signal_name="SendingImMsg")
+
+bus.add_signal_receiver(p.sent,
+                        dbus_interface="im.pidgin.purple.PurpleInterface",
+                        signal_name="SentImMsg")
 
 loop = gobject.MainLoop()
 loop.run()
