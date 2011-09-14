@@ -22,7 +22,10 @@ class text(node): #Format: "Word"
 	def structure(self):
 		return 'text: "%s"' % self.value
 
-
+def starts_with(text, chars):
+	if len(text)>0:
+		return text[0] in chars
+	return 0
 mode_lower   = 0
 mode_capital = 1
 mode_upper   = 2
@@ -40,10 +43,10 @@ class randword(text): #Format: "$word"
 	def get(self):
 		result = ""
 		if not words.has_key(self.value):
-			result = self.value
+			result = "$" + self.value
 		else:
 			result = random.choice( words[self.value] )
-			while(result[0] in ['$','!']):
+			while(starts_with(result, ['$','!'])):
 				if result[0] == '$':
 					result = result[1:]
 					if words.has_key(result):
@@ -62,27 +65,29 @@ class randword(text): #Format: "$word"
 		elif self.mode == mode_upper: mode_str = "UPPERCASE"
 		return ['randword: "%s", mode: %s' % (self.value, mode_str)]
 
-class choice(node): #Format: "option|option|...|option"
-	def __init__(self, options):
-		self.value = options
-	def get(self):
-		return random.choice(self.value).get()
-	def to_string(self):
-		return self.get().to_string()
+#class choice(node): #Format: "option|option|...|option"
+	#def __init__(self, options):
+		#self.value = options
+	#def get(self):
+		#return random.choice(self.value).get()
+	#def to_string(self):
+		#return self.get().to_string()
 
 class sequence(node): #Format: "Dunno"
-	def __init__(self, options = []):
-		self.data = options
+	def __init__(self):
+		self.data = [[]]
 	def get(self):
 		return self
 	def to_string(self):
 		result=""
-		for i in self.data:
+		for i in random.choice(self.data):
 			result+=i.to_string()
 		return result
 	def add(self, item):
 		if item:
-			self.data+=[item]
+			self.data[-1]+=[item]
+	def add_option(self):
+		self.data+=[[]]
 
 class repeat(node):
 	def __init__(self, item, min_times, max_times):
@@ -121,7 +126,8 @@ class char_range(node):
 set_vowels     = 1
 set_consonants = 2
 set_digits     = 4
-set_uppercase  = 8
+set_letters    = 8
+set_uppercase  = 4096
 
 class char_set(node):
 	def __init__(self, set_name):
@@ -129,17 +135,16 @@ class char_set(node):
 		set_name_lowercase = set_name.lower()
 		if   set_name_lowercase in ['v','vowel']:     self.set_type = set_vowels
 		elif set_name_lowercase in ['c','consonant']: self.set_type = set_consonants
-		elif set_name_lowercase in ['0','digits']:    self.set_type = set_digits
+		elif set_name_lowercase in ['0','digit']:     self.set_type = set_digits
+		elif set_name_lowercase in ['l','letter']:    self.set_type = set_letters
 		if set_name[0] in string.uppercase:           self.set_type|= set_uppercase
 	def get(self):
 		chars = []
-		if not self.set_type & set_uppercase:
-			if   self.set_type & set_vowels:     chars = "auoei"
-			elif self.set_type & set_consonants: chars = "qwrtypsdfghjklzxcvbnm"
-			elif self.set_type & set_digits:     chars = "0123456789"
-		else:
-			if   self.set_type & set_vowels:     chars = "AUOEI"
-			elif self.set_type & set_consonants: chars = "QWRTYPSDFGHJKLZXCVBNM"
+		if   self.set_type & set_vowels:     chars = "auoei"
+		elif self.set_type & set_consonants: chars = "qwrtypsdfghjklzxcvbnm"
+		elif self.set_type & set_letters:    chars = "auoeiqwrtypsdfghjklzxcvbnm"
+		elif self.set_type & set_digits:     chars = "0123456789"
+		if self.set_type & set_uppercase: chars = chars.upper()
 		return text(random.choice(chars))
 	def to_string(self):
 		return self.get().to_string()
@@ -191,6 +196,9 @@ def tokenize(string):
 			elif char == '%':
 				result += [t_percent]
 		else:
+			if prev_char=='\\':
+				if   char == 'n': char = '\n'
+				elif char == 't': char = '\t'
 			if l_string:
 				if len(result[-1])>0:
 					if result[-1][-1] not in word_separation:
@@ -209,7 +217,7 @@ class parser:
 	def __init__(self):
 		self.tokens=[]
 		self.last_token=None
-		self.result=sequence([])
+		self.result=None
 	def accept(self, token):
 		if len(self.tokens)==0: return 0
 		if   token==t_text:
@@ -228,14 +236,24 @@ class parser:
 			del self.tokens[0]
 		return result
 	def parse(self, string):
-		self.result=sequence([])
+		self.result=sequence()
 		self.tokens = tokenize(string)
-		return self.sequence()
+		return self.WTHshouldInameIt()
+	def WTHshouldInameIt(self):
+		result = sequence()
+		while len(self.tokens) > 0:
+			if self.accept(t_text):
+				result.add ( self.text() )
+			else:
+				result.add ( self.chance() )
+		return result
 	def sequence(self):
-		result = sequence([])
+		result = sequence()
 		while len(self.tokens) > 0 and not self.accept(t_scope_close):
 			if self.accept(t_text):
 				result.add ( self.text() )
+			elif self.eat(t_or):
+				result.add_option()
 			else:
 				result.add ( self.chance() )
 		return result
@@ -280,13 +298,12 @@ class parser:
 		if self.eat(t_curly_open):
 			if self.accept(t_text):
 				try:
-					max_times = int(self.tokens[0])
+					min_times = max_times = int(self.tokens[0])
 				except:
-					min_times = 0
+					min_times = 1
 					max_times = 1
 				self.eat()
 				if self.eat(t_range):
-					min_times = max_times
 					if self.accept(t_text):
 						try:
 							max_times = int(self.tokens[0])
@@ -305,7 +322,6 @@ class parser:
 			result = self.sequence()
 		self.eat(t_scope_close)
 		return result
-
 	def set(self):
 		self.eat(t_colon)
 		if self.accept(t_text):
@@ -319,8 +335,8 @@ def parse(text):
 	p = parser()
 	return p.parse(text)
 
-for i in range(0,10):
-	print parse("Hey, do you know that Swift Geek[:v:] is a $adj_bad[[, $adj_bad]{0-2} and $adj_bad]%33 $weapon of $element_magic?").to_string()
+#for i in range(0,10):
+#	print parse("Hey, do you know that Swift Geek[:v:] is a $adj_bad[[, $adj_bad]{0-2} and $adj_bad]%33 $weapon of $element_magic?").to_string()
 
 pass
  #character = ???????
@@ -330,7 +346,7 @@ pass
 
  #sequence = { text | chance }
  #repeat = container, [ "{", num2, [ ",", num2 ] "}" ]
- #container = "[", [ set | range | choice | sequence ] , "]"
+ #container = "[", [ set | sequence ], {'|', [set | sequence]} , "]"
 
  ###function = "$", num, ":", container
  ###function_call = "$", "(", num, ")"
