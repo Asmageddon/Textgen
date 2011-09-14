@@ -29,7 +29,10 @@ def starts_with(text, chars):
 mode_lower   = 0
 mode_capital = 1
 mode_upper   = 2
-class randword(text): #Format: "$word"
+
+class func(node): pass
+
+class randword(func): #Format: "$word" #This is also anything :3
 	def __init__(self, value, mode):
 		self.value = value.lower()
 		self.mode  = mode
@@ -42,6 +45,7 @@ class randword(text): #Format: "$word"
 			return text(result.upper())
 	def get(self):
 		result = ""
+		if self.value == "anything": self.value = random.choice(words.keys())
 		if not words.has_key(self.value):
 			result = "$" + self.value
 		else:
@@ -64,14 +68,6 @@ class randword(text): #Format: "$word"
 		elif self.mode == mode_capital: mode_str = "Capital"
 		elif self.mode == mode_upper: mode_str = "UPPERCASE"
 		return ['randword: "%s", mode: %s' % (self.value, mode_str)]
-
-#class choice(node): #Format: "option|option|...|option"
-	#def __init__(self, options):
-		#self.value = options
-	#def get(self):
-		#return random.choice(self.value).get()
-	#def to_string(self):
-		#return self.get().to_string()
 
 class sequence(node): #Format: "Dunno"
 	def __init__(self):
@@ -360,3 +356,8 @@ pass
 
  #num = digit_no0, { digit }
  #num2 = { digit }
+
+ #RESERVED NAMES:
+   # $anything - anything
+   # $master   - the person running the script
+   # $slave    - the person master is talking to

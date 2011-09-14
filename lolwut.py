@@ -1,5 +1,5 @@
 import random
-import nameDB as n
+#import nameDB as n
 import parser
 
 s=[]
@@ -61,19 +61,13 @@ s+=["You need to ask $name the $humanoid for help if you want to take down $name
 s+=["There are $w_old sayings that mention $weapon that can $sentence_powerful"]
 
 def sentence():
-	#return n.GetText(random.choice(s))
 	return parser.parse(random.choice(s)).to_string()
 
 def text(string):
 	print string, string.__class__
-	#return n.GetText(string)
 	return parser.parse(string).to_string()
 
 if __name__=="__main__":
-	#for a in s: print n.GetText(a)
-	#for i in s:
-	#	print i
-	#	print parser.parse(i).to_string()
 	for i in s:
 		r= parser.parse(i).to_string()
 		print r

@@ -159,7 +159,7 @@
 'location_civ':['city','town','village','farm','orchard','metropolis','building'],
 'location_nature':['cave','nest','lair'],
 
-'martial_art':['kung_fu','jiu_jitsu','sumo','boxing','karate'],
+'martial_art':['kung-fu','jiu-jitsu','sumo','boxing','karate'],
 
 'meal':['dinner','lunch','breakfast','supper'],
 'modalverb':['must',"musn't",'should',"shouldn't",'have to', "could", "couldn't"],
@@ -236,7 +236,7 @@
 'superpower_action':['manipulation','enhancing','creation','control'],
 'superpower_class':['$superpower_class_positive','$superpower_class_negative'],
 'superpower_class_positive':['universe','galaxy','planet','adept','master','mage','sorcerer','archmage','trick','demigod'],
-'superpower_class_negative':['anti_planet','anti_city','anti_fortress','anti_army','anti_person'],
+'superpower_class_negative':['anti-planet','anti-city','anti-fortress','anti_army','anti-person'],
 'superpower_element':['$element_magic','$abstract_concept','$physical_property'],
 'sp_a':['aqua','pyro','cogito','corpus','terra','audio','meta','tele'],
 'sp_b':['morphosis','kinesis','portation'],
@@ -250,6 +250,7 @@
 'sentence_powerful':['!$action_kill even the mighty $god','!cut through $material','!negate $pokeattack'],
 
 'digit':['![:0:]'],
+'digit_n0':['![1|2|3|4|5|6|7|8|9]'],
 'name':['![:C:][:v:][[:c:][:c:]%05[:v:][:v:]%15]{1-4}'],
 'year':['!1[:0:]{3-3}']
 }
