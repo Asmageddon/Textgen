@@ -32,35 +32,49 @@ mode_upper   = 2
 
 class func(node): pass
 
+def randword_builtin(value):
+	if value == "anything":
+		return '$'+random.choice(words.keys())
+randword_reserved = ["anything"]
 class randword(func): #Format: "$word" #This is also anything :3
-	def __init__(self, value, mode):
-		self.value = value.lower()
-		self.mode  = mode
-	def format(self, result):
-		if   self.mode == mode_lower:
+	def __init__(self, value):
+		self.value = value
+	def get_mode(self, value):
+		if value[0] not in string.uppercase:
+			mode = 0
+		else:
+			if len( value ) > 1:
+				if value[1] not in string.uppercase: mode = 1
+				else: mode = 2
+		return mode
+	def format(self, result, mode):
+		if   mode == mode_lower:
 			return text(result)
-		elif self.mode == mode_capital:
+		elif mode == mode_capital:
 			return text(result.capitalize())
-		elif self.mode == mode_upper:
+		elif mode == mode_upper:
 			return text(result.upper())
 	def get(self):
-		result = ""
-		if self.value == "anything": self.value = random.choice(words.keys())
-		if not words.has_key(self.value):
-			result = "$" + self.value
-		else:
-			result = random.choice( words[self.value] )
-			while(starts_with(result, ['$','!'])):
-				if result[0] == '$':
-					result = result[1:]
-					if words.has_key(result):
-						result = random.choice( words[result] )
+		result = "$" + self.value.lower()
+		mode = self.get_mode(self.value)
+		done = 0
+		while not done:
+			if len(result) == 0:
+				done = 1
+			else:
+				key = result[1:]
+				if   key in randword_reserved:
+					result = randword_builtin(key)
+				elif result[0] == "$":
+					if key in words:
+						result = random.choice(words[key])
+					else:
+						done = 1
+				elif result[0] == "!":
+					result = parse(key).to_string()
 				else:
-					result = result[1:]
-					try:
-						result = parse(result).to_string()
-					except: result = "\!\!FAIL!!"
-		return self.format(result)
+					done = 1
+		return self.format(result, mode)
 	def to_string(self):
 		return self.get().to_string()
 	def structure(self):
@@ -250,14 +264,25 @@ class parser:
 				result.add ( self.text() )
 			elif self.eat(t_or):
 				result.add_option()
-			else:
+			elif self.accept(t_dollar) or self.accept(t_scope_open):
 				result.add ( self.chance() )
+			else:
+				result.add ( self.text_token() )
 		return result
 	def text(self):
 		if self.accept(t_text): # text
 			result = text(self.tokens[0])
 			self.eat()
 			return result
+	def text_token(self):
+		if   self.accept(t_curly_open):  char = '{'
+		elif self.accept(t_curly_close): char = '}'
+		elif self.accept(t_func_start):  char = '('
+		elif self.accept(t_func_end):    char = ')'
+		elif self.accept(t_or):          char = '|'
+		elif self.accept(t_percent):     char = '%'
+		elif self.accept(t_range):       char = '-'
+		elif self.accept(t_scope_close): char = ']'
 	def chance(self):
 		result = None
 		if self.eat(t_dollar):
@@ -277,15 +302,9 @@ class parser:
 		return result
 	def randword(self):
 		if self.accept(t_text):
-			if self.tokens[0][0] not in string.uppercase:
-				mode = 0
-			else:
-				if len( self.tokens[0] ) > 1:
-					if self.tokens[0][1] not in string.uppercase: mode = 1
-					else: mode = 2
 			result = self.tokens[0]
 			self.eat()
-			return randword(result, mode)
+			return randword(result)
 	def repeat(self):
 		#return nothing()
 		content = self.container()
@@ -335,6 +354,7 @@ def parse(text):
 #	print parse("Hey, do you know that Swift Geek[:v:] is a $adj_bad[[, $adj_bad]{0-2} and $adj_bad]%33 $weapon of $element_magic?").to_string()
 
 pass
+ #OUTDATED
  #character = ???????
  #digit_no0 = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
  #digit = "0" | digit_no0
@@ -352,7 +372,7 @@ pass
  #randword = "$", text
  #choice = sequence, [{ "|", sequence }]
  #range = character, "-", character
- #chance = (repeat | randword ), "%", num
+ #chance = [repeat | randword], ("%", num)
 
  #num = digit_no0, { digit }
  #num2 = { digit }

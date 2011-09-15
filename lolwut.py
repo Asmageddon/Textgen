@@ -72,3 +72,4 @@ if __name__=="__main__":
 		r= parser.parse(i).to_string()
 		print r
 		if "$" in r: raw_input()
+	print "!!! Be wary that it is highly likely not all problems will be spotted with this simple test"
