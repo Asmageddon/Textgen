@@ -9,8 +9,11 @@ class nothing(node):
 	def get(self): return self
 	def to_string(self):
 		return ""
-	def structure(self):
-		return ["-"]
+	def structure(self, indent):
+		r = ""
+		for i in range(indent):
+			r+='  '
+		print r+"-"
 
 class text(node): #Format: "Word"
 	def __init__(self,content=""):
@@ -19,8 +22,11 @@ class text(node): #Format: "Word"
 		return self
 	def to_string(self):
 		return self.value
-	def structure(self):
-		return 'text: "%s"' % self.value
+	def structure(self,indent):
+		r = ""
+		for i in range(indent):
+			r+='  '
+		print '%s[text]: "%s"' % (r, self.value)
 
 def starts_with(text, chars):
 	if len(text)>0:
@@ -62,7 +68,7 @@ class randword(func): #Format: "$word" #This is also anything :3
 			if len(result) == 0:
 				done = 1
 			else:
-				key = result[1:]
+				key = result[1:].lower()
 				if   key in randword_reserved:
 					result = randword_builtin(key)
 				elif result[0] == "$":
@@ -77,11 +83,11 @@ class randword(func): #Format: "$word" #This is also anything :3
 		return self.format(result, mode)
 	def to_string(self):
 		return self.get().to_string()
-	def structure(self):
-		if   self.mode == mode_lower: mode_str = "lowercase"
-		elif self.mode == mode_capital: mode_str = "Capital"
-		elif self.mode == mode_upper: mode_str = "UPPERCASE"
-		return ['randword: "%s", mode: %s' % (self.value, mode_str)]
+	def structure(self,indent):
+		r = ""
+		for i in range(indent):
+			r+='  '
+		print r + '[randword]: "%s"' % self.value
 
 class sequence(node): #Format: "Dunno"
 	def __init__(self):
@@ -98,6 +104,15 @@ class sequence(node): #Format: "Dunno"
 			self.data[-1]+=[item]
 	def add_option(self):
 		self.data+=[[]]
+	def structure(self,indent):
+		r = ""
+		for i in range(indent):
+			r+='  '
+		print r+"[sequence]:"
+		for i in range(len(self.data)):
+			print r + "  option %i:" % i
+			for j in range(len(self.data[i])):
+				self.data[i][j].structure(indent+2)
 
 class repeat(node):
 	def __init__(self, item, min_times, max_times):
@@ -111,6 +126,16 @@ class repeat(node):
 		for i in range(0, random.randint(self.min, self.max)):
 			result+=self.item.to_string()
 		return result
+	def structure(self,indent):
+		r = ""
+		for i in range(indent):
+			r+='  '
+		print r+"[repeat]:"
+		print r+"  times"
+		print r+"    min: %i" %self.min
+		print r+"    max: %i" %self.max
+		print r+"  value:"
+		self.item.structure(indent+2)
 
 class chance(node):
 	def __init__(self, object, chance):
@@ -121,17 +146,14 @@ class chance(node):
 		else: return nothing()
 	def to_string(self):
 		return self.get().to_string()
-
-class char_range(node):
-	def __init__(self, char1, char2):
-		self.char1 = char1
-		self.char2 = char2
-	def get(self):
-		a1=int(self.char1)
-		a2=int(self.char2)
-		return text(chr(random.randint(a1,a2)))
-	def to_string(self):
-		return self.get().to_string()
+	def structure(self,indent):
+		r = ""
+		for i in range(indent):
+			r+='  '
+		print r+"[chance]:"
+		print r+"  chance: %f" % self.chance
+		print r+"  value:"
+		self.object.structure(indent+2)
 
 set_vowels     = 1
 set_consonants = 2
@@ -158,6 +180,11 @@ class char_set(node):
 		return text(random.choice(chars))
 	def to_string(self):
 		return self.get().to_string()
+	def structure(self,indent):
+		r = ""
+		for i in range(indent):
+			r+='  '
+		print r+"[char set] of type XXX"
 token_characters = '$[]()-|:{}%\\' #Actually '\' isn't a token, but it's special so I can let it in here
 word_separation = ' ,.;:"\'/!-+=<>?'
 t_text       = 0 # !!TEXT!! ??? PROFIT!
@@ -350,6 +377,8 @@ def parse(text):
 	p = parser()
 	return p.parse(text)
 
+if __name__=="__main__":
+	parse("^[.|,]%25^ [hoho]{2-4}%25 $adjective").structure(0)
 #for i in range(0,10):
 #	print parse("Hey, do you know that Swift Geek[:v:] is a $adj_bad[[, $adj_bad]{0-2} and $adj_bad]%33 $weapon of $element_magic?").to_string()
 

@@ -107,7 +107,11 @@
 'ship':['$vehicle_ship'],
 'siege':['$vehicle_siege'],
 
-
+'emote':['$emote_happy','$emote_sad','$emote_surprise','$emote_other'],
+'emote_happy':['![\:|;][3|\)|\|>|p|D]]'],
+'emote_sad':[':(',':[',':<',':C'],
+'emote_surprise':[':O',':o',':0','!\:[_]{1-5}\]'],
+'emote_other':['!^[.|,]%25^',':F'],
 
 
 'alcohol':['rum','spirit','vodka','mead','ale','beer','!$fruit wine'],

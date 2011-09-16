@@ -1,0 +1,56 @@
+Requirements:
+  System:
+    -Python installed. 2.7 confirmed to work but should also work with 2.5 and 2.6 and potentially other versions
+    -No external libraries required
+
+Textgen syntax:
+  text - normal text to be printed
+  $word - search data/words for key 'word' and pick random word of such category
+  $anything - reserved, will pick random category and then random word from it
+  [ ... ] - container, can contain anything else
+  []%25 - chance for contents of container to appear
+  []{2-6} - repeat contents 2-6 times
+  []{5} - repeat contents 5 times
+  []{2-4}%50 - also possible
+  [:x:] or [:x] where x is one of: (v)owel, (l)etter, (c)onsonant, (0)number. Can be uppercase
+  [ ... | ... ] - randomly chose one of options separated by '|'
+  Following characters have to be escaped(preceded with '\') to be printed:
+    ':' - will not be printed otherwise
+    '[' - will begin a container otherwise
+    ']' - will end current container and/or break the expression otherwise
+    '\' - will be ignored and/or escape next character otherwise
+    '-' - will be ignored otherwise
+    '$' - will be ignored otherwise
+  Other escape sequences:
+    \n - newline
+    \t - tab
+
+DBUS script for libpurple:
+  Commands:
+    !...text... - interpret text, ignoring first '!'
+    go 5 - send 5 random sentences from lolwut.py. Used mainly for testing and fun, please don't spam with it too much
+    set counter 2 - for every message from ene- I mean friend reply with 2 random sentences
+  Notes:
+    People who talk to you are also able to use !stuff, be wary
+
+API:
+  parser.py:
+    functions:
+      tokenize(text) - returns sequence of tokens with non-token characters returned as strings
+      parse(text) - parses text and returns an AST structure of type "sequence", using intermediate parser object
+    classes:
+      parser:
+        You probably don't have much use for it, use top-level parse(text) function instead
+        parse(text) - parse text and return AST structure
+      AST nodes(for example sequence):
+        to_string() - execute(generate) AST, return text
+        structure() - traverse the AST and print it's structure in text format
+
+TODO:
+  -There is a weird bug with []'s containing ^ and other weird characters and % operator
+  -Pretend too much repeats to save your PC from evil people
+  -Add a way to number lines/other stuff
+  -Clean up the code
+  -Add a way to repeat results of []'s ("baka baka baka" instead of "$idiot_word $idiot_word $idiot_word)
+  -Add some formatting of [] results - jumble words, change case, construct acronyms, reverse, etc...
+  -Actually do anything

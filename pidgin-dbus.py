@@ -25,8 +25,12 @@ class MyPurpleInterface:
 		print "[%s] -> [%s]: %s" % (account, receiver, message)
 		conversation = purple.PurpleConvIm(conv)
 		if message[-1]!=" ":
+			print "1"
 			if len(message)>1 and message[0]=="!":
+				print "2"
 				purple.PurpleConvImSend(conversation,lolwut.text(message[1:]))
+			elif message[0]=="<" and ">!" in message:
+				purple.PurpleConvImSend(conversation,lolwut.text(message))
 			else:
 				self.spam+=self.counter
 				self.sent(account,receiver, " ")
@@ -48,7 +52,7 @@ class MyPurpleInterface:
 				except:
 					pass
 	def sent(self, account, receiver, message):
-		print "[%s] -> [%s]: %s" % (receiver, account, message)
+		print "[%s] -> [%s]: %s" % (account, receiver, message)
 		conv = purple.PurpleFindConversationWithAccount(4, receiver, account)
 		conversation = purple.PurpleConvIm(conv)
 		if message[-1]==" " and self.spam > 0:
