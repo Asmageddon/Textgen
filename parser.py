@@ -616,19 +616,11 @@ mod_randcase  = 2**5 #Something Good -> sOMeTHIng goOd
 mod_uppercase = 2**6 #Something Good -> SOMETHING GOOD
 mod_lowercase = 2**7 #Something Good -> something good
 mod_mix       = 2**8 #Something Good -> Good Something / Something Good
-#Modifiers with parameter:
 pmod_alternate= 2**9 #Something Good -> Something, Good, Something, Good, ...
- #Parameter here being 0 or 1 for reversing order
 pmod_word     = 2**10#Something Good -> Something      / Good
- #Paremeter - Index of word
 pmod_allbut   = 2**11#Something Good -> Good           / Something
- #Paremeter - Index of word
 pmod_replace  = 2**12#Something Good -> S0mething G00d
- #Parameters:
-   #1 - string to replace
-   #2 - what to replace with
 pmod_remove   = 2**13#Something Good -> Smething Gd
- #Parameter - string to remove
 
 set_vowels     = 1
 set_consonants = 2
@@ -652,27 +644,6 @@ t_percent    = 11# %
 t_number     = 12# 0-9
 t_mod_open   = 13# <
 t_mod_close  = 14# >
-
-#OUTDATED
-#text
-
-#[...]<jumble,>{0-1}%25
-
-#sequence = { text | chance | randword }
-#chance = repeat, ("%", text)
-#repeat = modify, [ "{", num2, [ "-", num2 ] "}" ]
-#modify = container, [ "<", text, {" ", text}, {",", text, {" ", text}} ">" ]
-#container = "[", [ set | sequence, {'|', [set | sequence]}] , "]"
-
-###function = "$", num, ":", container
-###function_call = "$", "(", num, ")"
-
-#randword = "$", text
-
-##RESERVED NAMES:
-#$anything - anything
-
-
 
 if __name__=="__main__":
 	for i in ["jumble","flip","reverse","acronym","randcase","upper","lower","mix","alternate","word","allbut","replace"]:
