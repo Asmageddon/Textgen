@@ -1,19 +1,54 @@
 Requirements:
   System:
-    -Python installed. 2.7 confirmed to work but should also work with 2.5 and 2.6 and potentially other versions
-    -No external libraries required
+    *Python installed. 2.7 confirmed to work but should also work with 2.5 and 2.6 and potentially other versions
+    *Linux confirmed to work. Aside from pidgin-dbus.py, it should also work on another systems.
+    *No external libraries required, except for pidgin-dbus which requires:
+      -python-dbus
+      -python-gobject
+      (Ubuntu/Debain package names)
 
 Textgen syntax:
-  text - normal text to be printed
-  $word - search data/words for key 'word' and pick random word of such category
-  $anything - reserved, will pick random category and then random word from it
-  [ ... ] - container, can contain anything else
-  []%25 - chance for contents of container to appear
-  []{2-6} - repeat contents 2-6 times
-  []{5} - repeat contents 5 times
-  []{2-4}%50 - also possible
-  [:x:] or [:x] where x is one of: (v)owel, (l)etter, (c)onsonant, (0)number. Can be uppercase
-  [ ... | ... ] - randomly chose one of options separated by '|'
+  Basic elements:
+    text - normal text to be printed
+    $word - search data/words for key 'word' and pick random word of such category
+    $anything - reserved, will pick random category and then random word from it
+    [ ... ] - container, can contain anything else
+    [ ... | ... ] - randomly chose one of options separated by '|'
+  Operators:
+    []%25 - chance for contents of container to appear
+    []{5} - repeat contents 5 times
+    []{2-6} - repeat contents 2 to 6 times
+    []<modifier param1 param2 ...> - modify results of code block.
+    Operator order:
+      You can of course use multiple operators on one block, but you must keep them in following order:
+        1) <modifier>
+        2) {repeat}
+        3) %chance
+      If you wish to use them in different order, enclose code in [] and apply operators to that block
+  Modifiers:
+    Simple:
+      jumble - jumble words, preserve spaces, punctation marks, etc.
+      flip - flip words ( reverse letters in words
+      reverse - reverse whole text
+      acronym - create an acronym of given words
+      randcase - randomize case of individual letters
+      upper - turn the text uppercase
+      lower - turn the text lowercase
+      mix - randomize order of words
+    With parameters:
+      alternate - when this is repeated, instead of randomly chosing options from code block, alternate between them
+        param1 - 1 for reverse order?
+        param2 - start index
+      word - remove all words but ones on given positions, starting from 1
+        param1...n - keep word number <param>
+      allbut - reverse of word modifier - print all words but ones on given positions
+      replace - replace all occurences of string(s) with another string(s)
+        Note: As of now only supports replacing plain text with plain text.
+        param1 - string to replace
+        param2 - what to replace it with
+        param3,4 - another pair of what to replace and with what
+        param5,6 - same
+        and so on
   Following characters have to be escaped(preceded with '\') to be printed:
     ':' - will not be printed otherwise
     '[' - will begin a container otherwise
@@ -45,12 +80,14 @@ API:
       AST nodes(for example sequence):
         to_string() - execute(generate) AST, return text
         structure() - traverse the AST and print it's structure in text format
+        optimize() - some basic optimizations, as of now merges text() nodes
 
 TODO:
+  -Allow using parser.py module like you would use awk or sed
+  -Add $input
+  -Write generic dbus script that will execute scripts and use their output instead of a wrapper around my parser and lolwut
   -There is a weird bug with []'s containing ^ and other weird characters and % operator
-  -Pretend too much repeats to save your PC from evil people
+  -Prevent too much repeats to save your PC from evil people
   -Add a way to number lines/other stuff
   -Clean up the code
-  -Add a way to repeat results of []'s ("baka baka baka" instead of "$idiot_word $idiot_word $idiot_word)
-  -Add some formatting of [] results - jumble words, change case, construct acronyms, reverse, etc...
-  -Actually do anything
+  -Add a way to repeat results of []'s ("baka baka baka" instead of "$idiot_word $idiot_word $idiot_word" which turns into "idiot baka moron")

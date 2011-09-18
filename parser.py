@@ -51,6 +51,8 @@ class randword(node): #Format: "$word" #This is also anything :3
 			if len( value ) > 1:
 				if value[1] not in string.uppercase: mode = 1
 				else: mode = 2
+			else:
+				mode = 2
 		return mode
 	def format(self, result, mode):
 		if   mode == mode_lower:
@@ -312,7 +314,6 @@ class modifier_mix(modifier):
 		for i in range(0,len(pieces)):
 			if i%2: pieces1+=[pieces[i]]
 			else:   pieces2+=[pieces[i]]
-		print pieces1, pieces2
 		new_pieces = []
 		while len(pieces2) > 0:
 			index = random.randint(0,len(pieces2)-1)
@@ -373,7 +374,6 @@ class modifier_allbut(modifier):
 		for i in range(0, len(pieces)//2):
 			if i in index: continue
 			result += pieces[i*2] + pieces[i*2+1]
-			print i
 		return result
 class modifier_replace(modifier):
 	def modify(self, value):
@@ -571,7 +571,6 @@ class parser:
 	def modify(self):
 		result = self.container()
 		pieces = []
-		#print self.tokens
 		if self.eat(t_mod_open):
 			contents = ""
 			while not self.accept(t_mod_close):
