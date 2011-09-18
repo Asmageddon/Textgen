@@ -11,6 +11,18 @@ bus = dbus.SessionBus()
 obj = bus.get_object("im.pidgin.purple.PurpleService", "/im/pidgin/purple/PurpleObject")
 purple = dbus.Interface(obj, "im.pidgin.purple.PurpleInterface")
 
+def unformat(string):
+	ignore = 0
+	result = ""
+	for char in string:
+		if   char == "<" :
+			ignore = 1
+		elif char == ">":
+			ignore = 0
+		elif not ignore:
+			result+=char
+	return result.replace("&lt;", '<').replace("&gt;", '>')
+
 class Data:
 	def __init__(self):
 		self.characters = {}
@@ -22,6 +34,7 @@ class MyPurpleInterface:
 		self.data = {}
 		self.counter = 0
 	def received(self, account, receiver, message, conv, flags):
+		message = unformat(message)
 		print "[%s] -> [%s]: %s" % (account, receiver, message)
 		conversation = purple.PurpleConvIm(conv)
 		if message[-1]!=" ":
@@ -29,12 +42,12 @@ class MyPurpleInterface:
 			if len(message)>1 and message[0]=="!":
 				print "2"
 				purple.PurpleConvImSend(conversation,lolwut.text(message[1:]))
-			elif message[0]=="<" and ">!" in message:
-				purple.PurpleConvImSend(conversation,lolwut.text(message))
 			else:
 				self.spam+=self.counter
 				self.sent(account,receiver, " ")
 	def sending(self, account, receiver, message):
+		message = unformat(message)
+		print "[%s] -> [%s]: %s" % (account, receiver, message)
 		pieces = message.split(' ')
 		conv = purple.PurpleFindConversationWithAccount(4, receiver, account)
 		conversation = purple.PurpleConvIm(conv)
@@ -52,7 +65,6 @@ class MyPurpleInterface:
 				except:
 					pass
 	def sent(self, account, receiver, message):
-		print "[%s] -> [%s]: %s" % (account, receiver, message)
 		conv = purple.PurpleFindConversationWithAccount(4, receiver, account)
 		conversation = purple.PurpleConvIm(conv)
 		if message[-1]==" " and self.spam > 0:

@@ -111,7 +111,7 @@
 'emote_happy':['![\:|;][3|\)|\|>|p|D]]'],
 'emote_sad':[':(',':[',':<',':C'],
 'emote_surprise':[':O',':o',':0','!\:[_]{1-5}\]'],
-'emote_other':['!^[.|,]%25^',':F'],
+'emote_other':['![^[.|,]%50\^][\']%25',':F'],
 
 
 'alcohol':['rum','spirit','vodka','mead','ale','beer','!$fruit wine'],
@@ -253,8 +253,12 @@
 'w_old':['old','ancient','forgotten'],
 'sentence_powerful':['!$action_kill even the mighty $god','!cut through $material','!negate $pokeattack'],
 
-'digit':['![:0:]'],
-'digit_n0':['![1|2|3|4|5|6|7|8|9]'],
+'digit':['0','1','2','3','4','5','6','7','8','9'],
+'digit_n0':['1','2','3','4','5','6','7','8','9'],
 'name':['![:C:][:v:][[:c:][:c:]%05[:v:][:v:]%15]{1-4}'],
-'year':['!1[:0:]{3-3}']
+'year':['!1[:0:]{3-3}'],
+
+'c':['w','r','t','y','p','s','d','f','g','h','j','k','l','z','x','c','v','b','n','m'],
+'v':['a','u','i','o','e'],
+'l':['q','w','e','r','t','y','u','i','o','p','a','s','d','f','g','h','j','k','l','z','x','c','v','b','n','m']
 }
