@@ -49,6 +49,10 @@ Textgen syntax:
         param3,4 - another pair of what to replace and with what
         param5,6 - same
         and so on
+      remove - remove all occurences of param
+        param1...n - strins to remove
+      append - append text to the end of input
+        params - text to append
   Following characters have to be escaped(preceded with '\') to be printed:
     ':' - will not be printed otherwise
     '[' - will begin a container otherwise

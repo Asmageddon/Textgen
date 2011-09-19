@@ -3,16 +3,38 @@ import os, random, string
 #Remove this later: (or not)
 words = eval(open(os.path.join("data", "words")).read())
 
+def starts_with(text, chars):
+	if len(text)>0:
+		return text[0] in chars
+	return 0
+
+def randword_builtin(value):
+	if value == "anything":
+		return '$'+random.choice(words.keys())
+
+class environment(object):
+	def __init__(self, input = ""):
+		self.variables = {}
+		self.variables["input"] = input
+		self.var_count = 0
+	def lookup(self, name):
+		if self.variables.has_key(name):
+			return self.variables[name]
+		else:
+			return "" #Because we'll be only using strings anyway
+	def add(self, value, name = None):
+		if name == None:
+			self.variables[str(self.var_count)] = value
+		else:
+			self.variables[name] = value
+
 class node(object):
 	def get(self): return self
-	def to_string(self): return ""
+	def to_string(self, env = environment() ): return ""
 	def structure(self, indent): pass
 	def optimize(self): pass
 
 class nothing(node):
-	def get(self): return self
-	def to_string(self):
-		return ""
 	def structure(self, indent):
 		r = ""
 		for i in range(indent):
@@ -22,24 +44,13 @@ class nothing(node):
 class text(node): #Format: "Word"
 	def __init__(self,content=""):
 		self.value=content
-	def get(self):
-		return self
-	def to_string(self):
+	def to_string(self, env):
 		return self.value
 	def structure(self,indent):
 		r = ""
 		for i in range(indent):
 			r+='  '
 		print '%s[text]: "%s"' % (r, self.value)
-
-def starts_with(text, chars):
-	if len(text)>0:
-		return text[0] in chars
-	return 0
-
-def randword_builtin(value):
-	if value == "anything":
-		return '$'+random.choice(words.keys())
 
 class randword(node): #Format: "$word" #This is also anything :3
 	def __init__(self, value):
@@ -56,12 +67,12 @@ class randword(node): #Format: "$word" #This is also anything :3
 		return mode
 	def format(self, result, mode):
 		if   mode == mode_lower:
-			return text(result)
+			return result
 		elif mode == mode_capital:
-			return text(result.capitalize())
+			return result.capitalize()
 		elif mode == mode_upper:
-			return text(result.upper())
-	def get(self):
+			return result.upper()
+	def to_string(self, env):
 		result = "$" + self.value.lower()
 		mode = self.get_mode(self.value)
 		done = 0
@@ -78,12 +89,10 @@ class randword(node): #Format: "$word" #This is also anything :3
 					else:
 						done = 1
 				elif result[0] == "!":
-					result = parse(key).to_string()
+					result = parse(key).to_string(env)
 				else:
 					done = 1
 		return self.format(result, mode)
-	def to_string(self):
-		return self.get().to_string()
 	def structure(self,indent):
 		r = ""
 		for i in range(indent):
@@ -95,18 +104,15 @@ class sequence(node): #Format: "Dunno"
 		self.data = [[]]
 	def get(self):
 		return self
-	def get_option(self, index):
-		result = sequence()
-		result.data = [self.data[index]]
-		return result
-	def to_string(self, index = None):
+	def to_string(self, env):
 		result=""
-		if index == None:
-			for i in random.choice(self.data):
-				result+=i.to_string()
-		else:
-			for i in self.data[index]:
-				result+=i.to_string()
+		for i in random.choice(self.data):
+			result+=i.to_string(env)
+		return result
+	def option_to_string(self, index, env):
+		result=""
+		for i in self.data[index]:
+			result+=i.to_string(env)
 		return result
 	def add(self, item):
 		if item:
@@ -135,7 +141,7 @@ class sequence(node): #Format: "Dunno"
 				element.optimize()
 			for element in self.data[o][:]:
 				if element.__class__ == type(text()):
-					za_string+=element.to_string()
+					za_string+=element.to_string(environment())
 				else:
 					if za_string!="":
 						new_sequence += [ text(za_string) ]
@@ -146,17 +152,22 @@ class sequence(node): #Format: "Dunno"
 				za_string = ""
 			self.data[o] = new_sequence[:]
 
+class ast_root(sequence):
+	def to_string(self, env = environment() ):
+		result=""
+		for i in random.choice(self.data):
+			result+=i.to_string(env)
+		return result
+
 class repeat(node):
 	def __init__(self, item, min_times, max_times):
 		self.item = item
 		self.min = min_times
 		self.max = max_times
-	def get(self):
-		return self
-	def to_string(self):
+	def to_string(self, env):
 		result = ""
 		for i in range(0, random.randint(self.min, self.max)):
-			result+=self.item.to_string()
+			result+=self.item.to_string(env)
 		return result
 	def structure(self,indent):
 		r = ""
@@ -178,10 +189,8 @@ class modifier(node):
 		self.name = "blank modifier"
 	def modify(self, string):
 		return string
-	def get(self):
-		return self.value
-	def to_string(self):
-		return self.modify(self.get().to_string())
+	def to_string(self, env):
+		return self.modify(self.value.to_string(env))
 	def structure(self, indent):
 		r = ""
 		for i in range(indent):
@@ -198,7 +207,7 @@ class modifier(node):
 		result = []
 		current = ""
 		for char in value:
-			if (char in string.lowercase) or (char in string.uppercase):
+			if (char in string.lowercase) or (char in string.uppercase) or (char in string.digits):
 				current+=char
 			else:
 				result+=[current]+[char]
@@ -240,6 +249,8 @@ class modifier_factory(modifier):
 		elif mod_type == "word":      t = type(modifier_word())
 		elif mod_type == "allbut":    t = type(modifier_allbut())
 		elif mod_type == "replace":   t = type(modifier_replace())
+		elif mod_type == "remove":    t = type(modifier_remove())
+		elif mod_type == "append":    t = type(modifier_append())
 		self.__class__ = t
 
 class modifier_jumble(modifier):
@@ -290,8 +301,10 @@ class modifier_acronym(modifier):
 	def modify(self, value):
 		result = ""
 		for piece in self.split_words(value):
-			if (piece[0] in string.lowercase) or (piece[0] in string.uppercase):
-				result+=piece[0]
+			print '"'+piece+'"'
+			if len(piece) > 0:
+				if (piece[0] in string.lowercase) or (piece[0] in string.uppercase):
+					result+=piece[0]
 		return result
 class modifier_randcase(modifier):
 	def modify(self, value):
@@ -326,9 +339,9 @@ class modifier_mix(modifier):
 			result += pieces1[-1]
 		return result
 class modifier_alternate(modifier):
-	def to_string(self):
-		if   self.value.__class__ != type(sequence()): return self.value.to_string()
-		elif len(self.value.data) < 2: return self.value.to_string()
+	def to_string(self, env):
+		if   self.value.__class__ != type(sequence()): return self.value.to_string(env)
+		elif len(self.value.data) < 2: return self.value.to_string(env)
 
 		if not hasattr(self, "direction"):
 			self.direction = self.get_parameter(0,1)
@@ -340,7 +353,7 @@ class modifier_alternate(modifier):
 		if self.position < 0:
 			self.position = len(self.value.data)-1
 
-		result = self.value.to_string(self.position)
+		result = self.value.option_to_string(self.position, env)
 		if self.direction:
 			self.position -= 1
 		else:
@@ -371,26 +384,43 @@ class modifier_allbut(modifier):
 				c = int(param)-1
 				index += [c]
 			except: pass
+		i=0
 		for i in range(0, len(pieces)//2):
 			if i in index: continue
 			result += pieces[i*2] + pieces[i*2+1]
+		if i*2 > len(pieces):
+			result += pieces[-1]
 		return result
 class modifier_replace(modifier):
 	def modify(self, value):
 		result = str(value)
+		i=0
 		for i in range(0, len(self.parameters)//2):
 			result = result.replace(self.get_parameter(i*2),self.get_parameter(i*2+1))
+
 		return result
+class modifier_remove(modifier):
+	def modify(self, value):
+		result = str(value)
+		i=0
+		for i in range(0, len(self.parameters)):
+			result = result.replace(self.get_parameter(i), "")
+		return result
+class modifier_append(modifier):
+	def modify(self, value):
+		result = value
+		for i in self.parameters:
+			result+=i+" "
+		return result.strip(" ")
 
 class chance(node):
 	def __init__(self, object, chance):
 		self.object = object
 		self.chance = chance
-	def get(self):
-		if random.random() < self.chance: return self.object
-		else: return nothing()
-	def to_string(self):
-		return self.get().to_string()
+	def to_string(self, environment):
+		if random.random() < self.chance:
+			return self.object.to_string(environment)
+		else: return ""
 	def structure(self,indent):
 		r = ""
 		for i in range(indent):
@@ -482,7 +512,7 @@ class parser:
 		return self.result
 
 	def root(self):
-		result = sequence()
+		result = ast_root()
 		while len(self.tokens) > 0:
 			if self.accept(t_text):
 				result.add ( self.text() )
@@ -608,27 +638,13 @@ mode_upper   = 2
 
 randword_reserved = ["anything"]
 
-mod_jumble    = 2**1 #Something Good -> Smheonitg Good
-mod_flip      = 2**2 #Something Good -> dooG gnihtemoS
-mod_reverse   = 2**3 #Something Good -> Good Something
-mod_acronym   = 2**4 #Something Good -> SG
-mod_randcase  = 2**5 #Something Good -> sOMeTHIng goOd
-mod_uppercase = 2**6 #Something Good -> SOMETHING GOOD
-mod_lowercase = 2**7 #Something Good -> something good
-mod_mix       = 2**8 #Something Good -> Good Something / Something Good
-pmod_alternate= 2**9 #Something Good -> Something, Good, Something, Good, ...
-pmod_word     = 2**10#Something Good -> Something      / Good
-pmod_allbut   = 2**11#Something Good -> Good           / Something
-pmod_replace  = 2**12#Something Good -> S0mething G00d
-pmod_remove   = 2**13#Something Good -> Smething Gd
-
 set_vowels     = 1
 set_consonants = 2
 set_digits     = 4
 set_letters    = 8
 set_uppercase  = 4096
 
-token_characters = '$[]()-|:{}%<>\\' #Actually '\' isn't a token, but it's special so I can let it in here
+token_characters = '$[]()-|{}%<>\\' #Actually '\' isn't a token, but it's special so I can let it in here
 word_separation = ' ,.;:"\'/!-+=?'
 t_text       = 0 # !!TEXT!! ??? PROFIT!
 t_dollar     = 1 # $
@@ -646,7 +662,7 @@ t_mod_open   = 13# <
 t_mod_close  = 14# >
 
 if __name__=="__main__":
-	for i in ["jumble","flip","reverse","acronym","randcase","upper","lower","mix","alternate","word","allbut","replace"]:
-		a = parse("[\n[Will it seriously and fully honestly turn out ok?|Mill it seriously and fully honestly turn out ok]<"+i+" 1 3>]{2}")
+	for i in ["jumble","flip","reverse","acronym","randcase","upper","lower","mix","alternate","word","allbut","replace", "remove", "append"]:
+		a = parse("[\n[Will it seriously and fully honestly turn out ok 1 2 3?|Mill it seriously and fully honestly turn out ok 1 2 3?]<"+i+" 1 3>]{2}")
 		#a.structure(0)
 		print "%s (%s)" % (a.to_string(),i)
