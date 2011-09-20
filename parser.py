@@ -1,4 +1,5 @@
-import os, random, string
+#!/usr/bin/python
+import os, sys, random, string
 
 #Remove this later: (or not)
 words = eval(open(os.path.join("data", "words")).read())
@@ -27,6 +28,9 @@ class environment(object):
 			self.variables[str(self.var_count)] = value
 		else:
 			self.variables[name] = value
+	def has(self, name):
+		if name in self.variables: return 1
+		return 0
 
 class node(object):
 	def get(self): return self
@@ -86,6 +90,8 @@ class randword(node): #Format: "$word" #This is also anything :3
 				elif result[0] == "$":
 					if key in words:
 						result = random.choice(words[key])
+					elif env.has(key):
+						result = env.lookup(key)
 					else:
 						done = 1
 				elif result[0] == "!":
@@ -153,7 +159,10 @@ class sequence(node): #Format: "Dunno"
 			self.data[o] = new_sequence[:]
 
 class ast_root(sequence):
-	def to_string(self, env = environment() ):
+	def to_string(self, env = None):
+		if env == None: env = environment()
+		elif type(env) == type(""): env = environment(env)
+
 		result=""
 		for i in random.choice(self.data):
 			result+=i.to_string(env)
@@ -620,6 +629,10 @@ def parse(text):
 	p = parser()
 	return p.parse(text)
 
+def get_text(text, input = ""):
+	p = parser()
+	return p.parse(text).to_string(input)
+
 
 #----------------#
 #Constants follow#
@@ -654,7 +667,4 @@ t_mod_open   = 13# <
 t_mod_close  = 14# >
 
 if __name__=="__main__":
-	for i in ["jumble","flip","reverse","acronym","randcase","upper","lower","mix","alternate","word","allbut","replace", "remove", "append"]:
-		a = parse("[\n[Will it seriously and fully honestly turn out ok 1 2 3?|Mill it seriously and fully honestly turn out ok 1 2 3?]<"+i+" 1 3>]{2}")
-		#a.structure(0)
-		print "%s (%s)" % (a.to_string(),i)
+	print parse(sys.stdin.read()).to_string("INPUT!")
