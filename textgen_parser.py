@@ -161,7 +161,8 @@ class sequence(node): #Format: "Dunno"
 class ast_root(sequence):
 	def to_string(self, env = None):
 		if env == None: env = environment()
-		elif type(env) == type(""): env = environment(env)
+		elif type(env) == type( ""): env = environment(env)
+		elif type(env) == type(u""): env = environment(env)
 
 		result=""
 		for i in random.choice(self.data):
@@ -667,4 +668,4 @@ t_mod_open   = 13# <
 t_mod_close  = 14# >
 
 if __name__=="__main__":
-	print parse(sys.stdin.read()).to_string("INPUT!")
+	print parse(sys.stdin.read()).to_string("")

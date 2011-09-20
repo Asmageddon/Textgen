@@ -1,6 +1,6 @@
 import random
 #import nameDB as n
-import parser
+import textgen_parser as parser
 
 s=[]
 s+=["I'd drink $amount_liquid $drink!"]

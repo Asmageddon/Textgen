@@ -3,7 +3,7 @@ import dbus, gobject
 import time
 from dbus.mainloop.glib import DBusGMainLoop
 
-import lolwut
+import textgen_parser as parser
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 bus = dbus.SessionBus()
@@ -21,7 +21,11 @@ def unformat(string):
 			ignore = 0
 		elif not ignore:
 			result+=char
-	return result.replace("&lt;", '<').replace("&gt;", '>')
+	result = result.replace("&lt;", '<')
+	result = result.replace("&gt;", '>')
+	result = result.replace("&quot;", '"')
+	result = result.replace("&apos;", "'")
+	return result
 
 class Data:
 	def __init__(self):
@@ -30,46 +34,36 @@ class Data:
 
 class MyPurpleInterface:
 	def __init__(self):
-		self.spam = 0
 		self.data = {}
-		self.counter = 0
+		self.counter = ""
 	def received(self, account, receiver, message, conv, flags):
 		message = unformat(message)
 		print "[%s] -> [%s]: %s" % (account, receiver, message)
+
 		conversation = purple.PurpleConvIm(conv)
-		if message[-1]!=" ":
-			print "1"
-			if len(message)>1 and message[0]=="!":
-				print "2"
-				purple.PurpleConvImSend(conversation,lolwut.text(message[1:]))
-			else:
-				self.spam+=self.counter
-				self.sent(account,receiver, " ")
+		if len(message)>1:
+			if message[0]=="!":
+				reply = parser.get_text(message[1:])
+				purple.PurpleConvImSend(conversation, reply)
+			elif self.counter != "" and message[-1]!=" ":
+				reply = parser.get_text(self.counter, message)+" "
+				print self.counter
+				print reply
+				purple.PurpleConvImSend(conversation, reply)
 	def sending(self, account, receiver, message):
 		message = unformat(message)
 		print "[%s] -> [%s]: %s" % (account, receiver, message)
-		pieces = message.split(' ')
+
 		conv = purple.PurpleFindConversationWithAccount(4, receiver, account)
 		conversation = purple.PurpleConvIm(conv)
-		if len(message)>1 and message[0]=="!":
-			purple.PurpleConvImSend(conversation,lolwut.text(message[1:]))
-		elif len(pieces)==3:
-			if pieces[0]=="set":
-				exec("self.%s = %s" % (pieces[1], pieces[2]) )
-		elif len(pieces)==2:
-			if pieces[0]=="go":
-				try:
-					n = int(pieces[1])
-					self.spam+=n
-					self.sent(account,receiver, " ")
-				except:
-					pass
-	def sent(self, account, receiver, message):
-		conv = purple.PurpleFindConversationWithAccount(4, receiver, account)
-		conversation = purple.PurpleConvIm(conv)
-		if message[-1]==" " and self.spam > 0:
-			self.spam-=1
-			purple.PurpleConvImSend(conversation, lolwut.sentence()+" ")
+
+		if len(message)>1:
+			if message[0]=="!":
+				purple.PurpleConvImSend(conversation,parser.get_text(message[1:]))
+			elif len(message) >= 8:
+				if message[:8] == "counter:":
+					print "[INFO]counter set to: \"%s\""  % message[8:]
+					self.counter = message[8:]
 
 p = MyPurpleInterface()
 
@@ -80,10 +74,6 @@ bus.add_signal_receiver(p.received,
 bus.add_signal_receiver(p.sending,
                         dbus_interface="im.pidgin.purple.PurpleInterface",
                         signal_name="SendingImMsg")
-
-bus.add_signal_receiver(p.sent,
-                        dbus_interface="im.pidgin.purple.PurpleInterface",
-                        signal_name="SentImMsg")
 
 loop = gobject.MainLoop()
 loop.run()
