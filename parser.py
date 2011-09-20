@@ -207,11 +207,13 @@ class modifier(node):
 		result = []
 		current = ""
 		for char in value:
-			if (char in string.lowercase) or (char in string.uppercase) or (char in string.digits):
+			if char not in word_separation:
 				current+=char
 			else:
 				result+=[current]+[char]
 				current = ""
+		if current:
+			result+=[current]
 		return result
 	def get_parameter(self, index, integer = 0):
 		if len(self.parameters) > index:
@@ -288,12 +290,7 @@ class modifier_reverse(modifier):
 		current = ""
 		result = self.split_words(value)#[]
 		result_reversed = ""
-		#for char in value:
-			#if (char in string.lowercase) or (char in string.uppercase):
-				#current+=char
-			#else:
-				#result+=[current]+[char]
-				#current = ""
+		print result
 		for i in range(1,len(result)+1):
 			result_reversed+=result[-i]
 		return result_reversed
@@ -393,7 +390,7 @@ class modifier_allbut(modifier):
 		return result
 class modifier_replace(modifier):
 	def modify(self, value):
-		result = str(value)
+		result = value
 		i=0
 		for i in range(0, len(self.parameters)//2):
 			result = result.replace(self.get_parameter(i*2),self.get_parameter(i*2+1))
