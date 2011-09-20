@@ -290,7 +290,6 @@ class modifier_reverse(modifier):
 		current = ""
 		result = self.split_words(value)#[]
 		result_reversed = ""
-		print result
 		for i in range(1,len(result)+1):
 			result_reversed+=result[-i]
 		return result_reversed
@@ -298,7 +297,6 @@ class modifier_acronym(modifier):
 	def modify(self, value):
 		result = ""
 		for piece in self.split_words(value):
-			print '"'+piece+'"'
 			if len(piece) > 0:
 				if (piece[0] in string.lowercase) or (piece[0] in string.uppercase):
 					result+=piece[0]
@@ -537,6 +535,7 @@ class parser:
 			self.eat()
 			return result
 	def randword(self):
+		self.eat(t_dollar)
 		if self.accept(t_text):
 			result = self.tokens[0]
 			self.eat()
@@ -556,14 +555,7 @@ class parser:
 		return text(char)
 
 	def chance(self):
-		result = None
-		if self.eat(t_dollar):
-			if self.accept(t_text):
-				result = self.randword()
-			else:
-				result = self.repeat()
-		else:
-			result = self.repeat()
+		result = self.repeat()
 		if self.eat(t_percent):
 			if self.accept(t_text):
 				try:
@@ -596,7 +588,10 @@ class parser:
 			return repeat(content, min_times, max_times)
 		return content
 	def modify(self):
-		result = self.container()
+		if self.accept(t_dollar):
+			result = self.randword()
+		else:
+			result = self.container()
 		pieces = []
 		if self.eat(t_mod_open):
 			contents = ""
