@@ -14,9 +14,10 @@ def randword_builtin(value):
 		return '$'+random.choice(words.keys())
 
 class environment(object):
-	def __init__(self, input = ""):
+	def __init__(self, input = "", variables = {}):
 		self.variables = {}
 		self.variables["input"] = input
+		self.variables.update(variables)
 		self.var_count = 0
 	def lookup(self, name):
 		if self.variables.has_key(name):
@@ -630,9 +631,10 @@ def parse(text):
 	p = parser()
 	return p.parse(text)
 
-def get_text(text, input = ""):
+def get_text(text, input = "", variables = {}):
 	p = parser()
-	return p.parse(text).to_string(input)
+	env = environment(input, variables)
+	return p.parse(text).to_string(env)
 
 
 #----------------#
@@ -667,5 +669,43 @@ t_number     = 12# 0-9
 t_mod_open   = 13# <
 t_mod_close  = 14# >
 
+parse_mode_word = 0
+parse_mode_line = 1
+parse_mode_file = 2
 if __name__=="__main__":
-	print parse(sys.stdin.read()).to_string("")
+	mode = 2 # Default to line-by-line
+	if   "--word" in sys.argv: mode = parse_mode_word
+	elif "--line" in sys.argv: mode = parse_mode_line
+	elif "--file" in sys.argv: mode = parse_mode_file
+	input = sys.stdin.read()
+	if input[-1] == "\n":
+		input = input[:-1]
+	for argument in sys.argv[1:]:
+		if argument in ["--word", "--line", "--file"]: continue
+		else:
+			if   mode == parse_mode_word:
+				lines = input.split('\n')
+				for line_index in range(0, len(lines)):
+					line = lines[line_index]
+					words = line.split(' ')
+					for word_index in range(0,len(words)):
+						word = words[word_index]
+						variables = {
+							'line':str(line_index),
+							'word':str(word_index),
+							}
+						env = environment(word, variables)
+						print parse(argument).to_string(env)
+			elif mode == parse_mode_line:
+				lines = input.split('\n')
+				for line_index in range(0, len(lines)):
+					line = lines[line_index]
+					variables = {
+						'line':str(line_index),
+						}
+					env = environment(line, variables)
+					print parse(argument).to_string(env)
+			elif mode == parse_mode_file:
+				print parse(argument).to_string(input)
+
+	sys.exit()

@@ -46,9 +46,8 @@ class MyPurpleInterface:
 				reply = parser.get_text(message[1:])
 				purple.PurpleConvImSend(conversation, reply)
 			elif self.counter != "" and message[-1]!=" ":
-				reply = parser.get_text(self.counter, message)+" "
-				print self.counter
-				print reply
+				variables = {}
+				reply = parser.get_text(self.counter, message, variables)+" "
 				purple.PurpleConvImSend(conversation, reply)
 	def sending(self, account, receiver, message):
 		message = unformat(message)
@@ -59,7 +58,9 @@ class MyPurpleInterface:
 
 		if len(message)>1:
 			if message[0]=="!":
-				purple.PurpleConvImSend(conversation,parser.get_text(message[1:]))
+				variables = {}
+				reply = parser.get_text(message[1:], "", variables)
+				purple.PurpleConvImSend(conversation, reply)
 			elif len(message) >= 8:
 				if message[:8] == "counter:":
 					print "[INFO]counter set to: \"%s\""  % message[8:]
