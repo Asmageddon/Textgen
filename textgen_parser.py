@@ -339,8 +339,13 @@ class modifier_mix(modifier):
 			new_pieces+=[pieces2[index]]
 			del pieces2[index]
 		result = ""
+		print pieces1
+		print pieces2
+		print new_pieces
 		for i in range(0,len(new_pieces)):
-			result+=new_pieces[i]+pieces1[i]
+			result += new_pieces[i]
+			if i < len(pieces1):
+				result += pieces1[i]
 		if len(pieces1) > len(new_pieces):
 			result += pieces1[-1]
 		return result
