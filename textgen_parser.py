@@ -542,6 +542,7 @@ def tokenize(string):
 				token_type = t_mod_close
 			elif char == '\\':
 				escape = 1
+				continue
 			result += [token(token_type, "")]
 		else:
 			if char in "0123456789":
@@ -558,8 +559,10 @@ def tokenize(string):
 					result += [token(token_type, token_content)]
 			else:
 				result += [token(token_type, token_content)]
+			if escape: escape = 0
 		prev_char = char
 	return result
+	print result
 
 class parser:
 	def __init__(self):
@@ -622,6 +625,7 @@ class parser:
 			self.eat()
 			return randword(result)
 	def text_token(self):
+		char = 'X'
 		if   self.accept(t_curly_open):  char = '{'
 		elif self.accept(t_curly_close): char = '}'
 		elif self.accept(t_func_open):   char = '('
@@ -746,8 +750,6 @@ parse_mode_word = 0
 parse_mode_line = 1
 parse_mode_file = 2
 if __name__=="__main__":
-	print tokenize("Example input [[haha]<jumble>]%25 \\\\ \n")
-	#sys.exit()
 	mode = 2 # Default to line-by-line
 	if   "--word" in sys.argv: mode = parse_mode_word
 	elif "--line" in sys.argv: mode = parse_mode_line
