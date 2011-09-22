@@ -207,6 +207,25 @@ class repeat(node):
 	def optimize(self):
 		self.item.optimize()
 
+class chance(node):
+	def __init__(self, object, chance):
+		self.object = object
+		self.chance = chance
+	def to_string(self, environment):
+		if random.random() < self.chance:
+			return self.object.to_string(environment)
+		else: return ""
+	def structure(self,indent):
+		r = ""
+		for i in range(indent):
+			r+='  '
+		print r+"[chance]:"
+		print r+"  chance: %f" % self.chance
+		print r+"  value:"
+		self.object.structure(indent+2)
+	def optimize(self):
+		self.object.optimize()
+
 class modifier(node):
 	def __init__(self):
 		self.parameters = []
@@ -453,73 +472,92 @@ class modifier_backronym(modifier):
 				result += char
 		return result
 
-class chance(node):
-	def __init__(self, object, chance):
-		self.object = object
-		self.chance = chance
-	def to_string(self, environment):
-		if random.random() < self.chance:
-			return self.object.to_string(environment)
-		else: return ""
-	def structure(self,indent):
-		r = ""
-		for i in range(indent):
-			r+='  '
-		print r+"[chance]:"
-		print r+"  chance: %f" % self.chance
-		print r+"  value:"
-		self.object.structure(indent+2)
-	def optimize(self):
-		self.object.optimize()
+
+class token(object):
+	def __init__(self, token_type, content=""):
+		self.type = token_type
+		self.content = content
+	def accept(self, token_type, content=None):
+		if token_type == t_text:
+			if self.type in [t_string, t_number, t_whitespace]:
+				if content == None:
+					return 1
+				if self.content != content:
+					return 0
+				else:
+					return 1
+			else:
+				return 0
+		elif self.type != token_type:
+			return 0
+		elif content == None:
+			return 1
+		if self.content != content:
+			return 0
+		else:
+			return 1
+	def __repr__(self):
+		content = self.content[:]
+		if content == '\n':
+			content= '\\n'
+		if content == '\\':
+			content= '\\\\'
+		if content!="":
+			return "token(%s, '%s')" % (self.type, content)
+		else:
+			return "token(%s)" % self.type
 
 def tokenize(string):
 	result = []
-	current=""
-	l_string = 0
-	prev_char = ''
-	a=0
+	token_type = 0
+	token_content = ""
+	escape = 0
 	for char in string:
-		if char in token_characters and prev_char!='\\':
-			l_string = 0
+		token_type = 0
+		token_content = ""
+		if (char in token_characters) and not escape:
 			if   char == '$':
-				result += [t_dollar]
+				token_type = t_dollar
 			elif char == '[':
-				result += [t_scope_open]
+				token_type = t_scope_open
 			elif char == ']':
-				result += [t_scope_close]
+				token_type = t_scope_close
 			elif char == '(':
-				result += [t_func_open]
+				token_type = t_func_open
 			elif char == ')':
-				result += [t_func_close]
+				token_type = t_func_close
 			elif char == '-':
-				result += [t_range]
+				token_type = t_range
 			elif char == '|':
-				result += [t_or]
+				token_type = t_or
 			elif char == '{':
-				result += [t_curly_open]
+				token_type = t_curly_open
 			elif char == '}':
-				result += [t_curly_close]
+				token_type = t_curly_close
 			elif char == '%':
-				result += [t_percent]
+				token_type = t_percent
 			elif char == '<':
-				result += [t_mod_open]
+				token_type = t_mod_open
 			elif char == '>':
-				result += [t_mod_close]
+				token_type = t_mod_close
+			elif char == '\\':
+				escape = 1
+			result += [token(token_type, "")]
 		else:
-			if prev_char=='\\':
-				if   char == 'n': char = '\n'
-				elif char == 't': char = '\t'
-			if l_string:
-				if len(result[-1])>0:
-					if result[-1][-1] not in word_separation:
-						if char in word_separation: result+=[char]
-						else: result[-1]+=char
-					else:
-						result[-1]+=char
+			if char in "0123456789":
+				token_type = t_number
+			elif char in word_separation:
+				token_type = t_whitespace
+			else:
+				token_type = t_string
+			token_content = char
+			if len(result) > 0:
+				if result[-1].type == token_type:
+					result[-1].content+=token_content
 				else:
-					result[-1]+=char
-			else: result+=[char]
-			l_string = 1
+					result += [token(token_type, token_content)]
+			else:
+				result += [token(token_type, token_content)]
 		prev_char = char
 	return result
 
@@ -528,20 +566,18 @@ class parser:
 		self.tokens=[]
 		self.last_token=None
 		self.result=None
-	def accept(self, token):
+	def accept(self, token_type, content = None):
 		if len(self.tokens)==0: return 0
-		if   token==t_text:
-			if self.tokens[0].__class__ in [type(""),type(u"")]:
-				return 1
-		elif self.tokens[0] == token:
+		if self.tokens[0].accept(token_type, content):
 			return 1
-		return 0
-	def eat(self, token=None):
+		else:
+			return 0
+	def eat(self, token=None, content = None):
 		if len(self.tokens)==0: return 0
 		if token==None:
 			del self.tokens[0]
 			return 0
-		result = self.accept(token)
+		result = self.accept(token, content)
 		if result:
 			del self.tokens[0]
 		return result
@@ -576,13 +612,13 @@ class parser:
 
 	def text(self):
 		if self.accept(t_text): # text
-			result = text(self.tokens[0])
+			result = text(self.tokens[0].content)
 			self.eat()
 			return result
 	def randword(self):
 		self.eat(t_dollar)
 		if self.accept(t_text):
-			result = self.tokens[0]
+			result = self.tokens[0].content
 			self.eat()
 			return randword(result)
 	def text_token(self):
@@ -596,6 +632,7 @@ class parser:
 		elif self.accept(t_scope_close): char = ']'
 		elif self.accept(t_mod_open):    char = '<'
 		elif self.accept(t_mod_close):   char = '>'
+		print self.tokens
 		self.eat()
 		return text(char)
 
@@ -604,7 +641,7 @@ class parser:
 		if self.eat(t_percent):
 			if self.accept(t_text):
 				try:
-					chance_value = float(self.tokens[0])/(10.0 ** len(self.tokens[0]))
+					chance_value = float(self.tokens[0].content)/(10.0 ** len(self.tokens[0].content))
 					self.eat()
 					return chance(result, chance_value)
 				except: pass
@@ -617,7 +654,7 @@ class parser:
 		if self.eat(t_curly_open):
 			if self.accept(t_text):
 				try:
-					min_times = max_times = int(self.tokens[0])
+					min_times = max_times = int(self.tokens[0].content)
 				except:
 					min_times = 1
 					max_times = 1
@@ -625,7 +662,7 @@ class parser:
 				if self.eat(t_range):
 					if self.accept(t_text):
 						try:
-							max_times = int(self.tokens[0])
+							max_times = int(self.tokens[0].content)
 						except:
 							min_times = 0
 						self.eat()
@@ -642,7 +679,7 @@ class parser:
 			contents = ""
 			while not self.accept(t_mod_close):
 				if self.accept(t_text):
-					contents+=self.tokens[0]
+					contents+=self.tokens[0].content
 					self.eat(t_text)
 				else:
 					break
@@ -664,7 +701,6 @@ class parser:
 def parse(text):
 	p = parser()
 	return p.parse(text)
-
 def get_text(text, input = "", variables = {}):
 	p = parser()
 	env = environment(input, variables)
@@ -702,11 +738,16 @@ t_percent    = 11# %
 t_number     = 12# 0-9
 t_mod_open   = 13# <
 t_mod_close  = 14# >
+t_string     = 15# Subclass of t_text
+t_number     = 16# Subclass of t_text
+t_whitespace = 17# Subclass of t_text
 
 parse_mode_word = 0
 parse_mode_line = 1
 parse_mode_file = 2
 if __name__=="__main__":
+	print tokenize("Example input [[haha]<jumble>]%25 \\\\ \n")
+	#sys.exit()
 	mode = 2 # Default to line-by-line
 	if   "--word" in sys.argv: mode = parse_mode_word
 	elif "--line" in sys.argv: mode = parse_mode_line
