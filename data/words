@@ -25,7 +25,7 @@
 
 'action':['$action_kill','$action_daily','$action_fetch','$interaction'],
 'action_daily':['consume','defecate','sleep','eat','drink'],
-'action_evil':['action_kill','torture','beat','insult','humiliate','rape'],
+'action_evil':['$action_kill','torture','beat','insult','humiliate','rape'],
 'action_fetch':['bring','fetch','find','retrieve','steal','collect','get','obtain'],
 'action_kill':['kill','obliterate','drown','erase','destroy','crush','burn','murder'],
 'action_thanks':['hug','kiss','thank you','!$number points of appreciation'],
@@ -57,8 +57,8 @@
 'stone':['$material_stone'],
 
 'relative'  :['$relative_female','$relative_male'],
-'relative_female':['sister','mother','mother_in_law','wife','grandma','bride','daughter','aunt'],
-'relative_male':['brother','father','father_in_law','husband','grandpa','groom','son','uncle'],
+'relative_female':['sister','mother','mother-in-law','wife','grandma','bride','daughter','aunt'],
+'relative_male':['brother','father','father-in-law','husband','grandpa','groom','son','uncle'],
 
 'weapon':['$weapon_cut','$weapon_blunt','$weapon_polearm','$weapon_ranged','$weapon_thrown','$weapon_firearm'],
 'weapon_ranged':['bow','longbow','recurve bow','crossbow','arbalest','repeating crossbow','sling','arm crossbow','firearm'],
@@ -206,7 +206,7 @@
 	 'bone club','bonemerang','bubble','bubblebeam','clamp','comet punch',
 	 'confuse ray','confusion','constrict','conversion','counter',
 	 'crabhammer','cut','defense curl','dig','disable','dizzy punch',
-	 'double kick','double team','double_edge','doubleslap',
+	 'double kick','double team','double-edge','doubleslap',
 	 'dragon rage','dream eater','drill peck','earthquake','egg bomb',
 	 'ember','explosion','fire blast','fire punch','fire spin',
 	 'fissure','flamethrower','flash','fly','focus energy',
@@ -240,7 +240,7 @@
 'superpower_action':['manipulation','enhancing','creation','control'],
 'superpower_class':['$superpower_class_positive','$superpower_class_negative'],
 'superpower_class_positive':['universe','galaxy','planet','adept','master','mage','sorcerer','archmage','trick','demigod'],
-'superpower_class_negative':['anti-planet','anti-city','anti-fortress','anti_army','anti-person'],
+'superpower_class_negative':['anti-planet','anti-city','anti-fortress','anti-army','anti-person'],
 'superpower_element':['$element_magic','$abstract_concept','$physical_property'],
 'sp_a':['aqua','pyro','cogito','corpus','terra','audio','meta','tele'],
 'sp_b':['morphosis','kinesis','portation'],

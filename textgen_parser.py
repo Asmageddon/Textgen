@@ -2,7 +2,19 @@
 import os, sys, random, string
 
 #Remove this later: (or not)
-words = eval(open(os.path.join("data", "words")).read())
+words_database = eval(open(os.path.join("data", "words")).read())
+
+words_by_letter = {}
+for letter in "abcdefghijklmnopqrstuvwxyz":
+	words_by_letter[letter] = []
+for category in words_database:
+	for word in words_database[category]:
+		if len(word) > 0:
+			char = word[0].lower()
+			test = char in "abcdefghijklmnopqrstuvwxyz"
+			test&= len(word.split(" ")) == 1
+			if test:
+				words_by_letter[char] += [word]
 
 def starts_with(text, chars):
 	if len(text)>0:
@@ -11,7 +23,7 @@ def starts_with(text, chars):
 
 def randword_builtin(value):
 	if value == "anything":
-		return '$'+random.choice(words.keys())
+		return '$'+random.choice(words_database.keys())
 
 class environment(object):
 	def __init__(self, input = "", variables = {}):
@@ -91,8 +103,8 @@ class randword(node): #Format: "$word" #This is also anything :3
 				if   key in randword_reserved:
 					result = randword_builtin(key)
 				elif result[0] == "$":
-					if key in words:
-						result = random.choice(words[key])
+					if key in words_database:
+						result = random.choice(words_database[key])
 					elif env.has(key):
 						result = env.lookup(key)
 					else:
@@ -265,7 +277,7 @@ class modifier_factory(modifier):
 		elif mod_type == "allbut":    t = type(modifier_allbut())
 		elif mod_type == "replace":   t = type(modifier_replace())
 		elif mod_type == "remove":    t = type(modifier_remove())
-		elif mod_type == "append":    t = type(modifier_append())
+		elif mod_type == "backronym": t = type(modifier_backronym())
 		self.__class__ = t
 
 class modifier_jumble(modifier):
@@ -419,12 +431,27 @@ class modifier_remove(modifier):
 		for i in range(0, len(self.parameters)):
 			result = result.replace(self.get_parameter(i), "")
 		return result
-class modifier_append(modifier):
+class modifier_backronym(modifier):
 	def modify(self, value):
-		result = value
-		for i in self.parameters:
-			result+=i+" "
-		return result.strip(" ")
+		result = ""
+		print value
+		for char in value:
+			if char in string.uppercase:
+				mode = mode_capital
+			else:
+				mode = mode_lower
+			char = char.lower()
+			if char in "abcdefghijklmnopqrstuvwxyz":
+				word = random.choice(words_by_letter[char])
+				if mode == mode_capital:
+					word = word.capitalize()
+				else:
+					word = word.lower()
+				result += word
+				result += " "
+			elif char in word_separation:
+				result += char
+		return result
 
 class chance(node):
 	def __init__(self, object, chance):
@@ -690,6 +717,7 @@ if __name__=="__main__":
 	for argument in sys.argv[1:]:
 		if argument in ["--word", "--line", "--file"]: continue
 		else:
+			compiled = parse(argument)
 			if   mode == parse_mode_word:
 				lines = input.split('\n')
 				for line_index in range(0, len(lines)):
@@ -702,7 +730,7 @@ if __name__=="__main__":
 							'word':str(word_index),
 							}
 						env = environment(word, variables)
-						print parse(argument).to_string(env)
+						print compiled.to_string(env)
 			elif mode == parse_mode_line:
 				lines = input.split('\n')
 				for line_index in range(0, len(lines)):
@@ -713,6 +741,6 @@ if __name__=="__main__":
 					env = environment(line, variables)
 					print parse(argument).to_string(env)
 			elif mode == parse_mode_file:
-				print parse(argument).to_string(input)
+				print compiled.to_string(input)
 
 	sys.exit()

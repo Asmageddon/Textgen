@@ -46,8 +46,8 @@ class MyPurpleInterface:
 		buddy_name = purple.PurpleBuddyGetAliasOnly(buddy_acc)
 
 		variables = {
-			'self':purple.PurpleAccountGetNameForDisplay(account),
-			'buddy':buddy_name
+			'self':unicode(purple.PurpleAccountGetNameForDisplay(account)),
+			'buddy':unicode(buddy_name)
 		}
 
 		if len(message)>1:
@@ -68,8 +68,8 @@ class MyPurpleInterface:
 		buddy_name = purple.PurpleBuddyGetAliasOnly(buddy_acc)
 
 		variables = {
-			'self':purple.PurpleAccountGetNameForDisplay(account),
-			'buddy':buddy_name
+			'self':unicode(purple.PurpleAccountGetNameForDisplay(account)),
+			'buddy':unicode(buddy_name)
 		}
 		print variables
 
