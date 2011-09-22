@@ -46,21 +46,17 @@ class MyPurpleInterface:
 		buddy_name = purple.PurpleBuddyGetAliasOnly(buddy_acc)
 
 		variables = {
-			#'buddy':purple.PurpleBuddyGetAlias(account),
 			'self':purple.PurpleAccountGetNameForDisplay(account),
-			#'self':purple.PurpleBuddyGetAliasOnly(account),
 			'buddy':buddy_name
 		}
-
-		print variables
 
 		if len(message)>1:
 			if message[0]=="!":
 				reply = parser.get_text(message[1:], message[1:], variables)
-				purple.PurpleConvImSend(conversation, reply)
+				purple.PurpleConvImSend(conversation, reply+" ")
 			elif self.counter != "" and message[-1]!=" ":
 				reply = parser.get_text(self.counter, message, variables)+" "
-				purple.PurpleConvImSend(conversation, reply)
+				purple.PurpleConvImSend(conversation, reply+" ")
 	def sending(self, account, receiver, message):
 		message = unformat(message)
 		print "[%s] -> [%s]: %s" % (account, receiver, message)
@@ -73,14 +69,14 @@ class MyPurpleInterface:
 
 		variables = {
 			'self':purple.PurpleAccountGetNameForDisplay(account),
-			#'self':purple.PurpleBuddyGetAliasOnly(account),
 			'buddy':buddy_name
 		}
+		print variables
 
 		if len(message)>1:
 			if message[0]=="!":
 				reply = parser.get_text(message[1:], "", variables)
-				purple.PurpleConvImSend(conversation, reply)
+				purple.PurpleConvImSend(conversation, reply+ " ")
 			elif len(message) >= 8:
 				if message[:8] == "counter:":
 					print "[INFO]counter set to: \"%s\""  % message[8:]
