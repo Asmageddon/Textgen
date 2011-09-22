@@ -1,97 +1,113 @@
 Requirements:
-  System:
-    *Python installed. 2.7 confirmed to work but should also work with 2.5 and 2.6 and potentially other versions
-    *Linux confirmed to work. Aside from pidgin-dbus.py, it should also work on another systems.
-    *No external libraries required, except for pidgin-dbus which requires:
-      -python-dbus
-      -python-gobject
-      (Ubuntu/Debain package names)
+    System:
+        *Python installed. 2.7 confirmed to work but should also work with 2.5 and 2.6 and potentially other versions
+        *Linux confirmed to work. Aside from pidgin-dbus.py, it should also work on another systems.
+        *No external libraries required, except for pidgin-dbus which requires:
+            -python-dbus
+            -python-gobject
+            (Ubuntu/Debain package names)
+
+DBUS script for libpurple syntax:
+    Usage:
+        !...text... - interpret text, ignoring first '!'
+        counter:expression - set counter to expression
+    Variables passed to the parser:
+        $input - message received (does not pass sent messages, sorry, I need to prevent infinite recursion)
+        $self - own alias/name
+        $buddy - buddy alias
+    Notes:
+        People who talk to you are also able to use !stuff, be wary
+
+CLI syntax:
+    Usage:
+        textgen_parser.py [--word|--line|--file] "expression" ["expression" ...]
+        It will read input from stdin, so use it in conjunction with echo or cat or something
+    Variables:
+        By default, two variables are passed to the script:
+        $line - when using --word or --line, contains index of current line
+        $word - when using --word, contains index of current word
 
 Textgen syntax:
-  Basic elements:
-    text - normal text to be printed
-    $word - search data/words for key 'word' and pick random word of such category
-    $anything - reserved, will pick random category and then random word from it
-    [ ... ] - container, can contain anything else
-    [ ... | ... ] - randomly chose one of options separated by '|'
-  Operators:
-    []%25 - chance for contents of container to appear
-    []{5} - repeat contents 5 times
-    []{2-6} - repeat contents 2 to 6 times
-    []<modifier param1 param2 ...> - modify results of code block.
-    Operator order:
-      You can of course use multiple operators on one block, but you must keep them in following order:
-        1) <modifier>
-        2) {repeat}
-        3) %chance
-      If you wish to use them in different order, enclose code in [] and apply operators to that block
-  Modifiers:
-    Simple:
-      jumble - jumble words, preserve spaces, punctation marks, etc.
-      flip - flip words ( reverse letters in words
-      reverse - reverse whole text
-      acronym - create an acronym of given words
-      randcase - randomize case of individual letters
-      upper - turn the text uppercase
-      lower - turn the text lowercase
-      mix - randomize order of words
-    With parameters:
-      alternate - when this is repeated, instead of randomly chosing options from code block, alternate between them
-        param1 - 1 for reverse order?
-        param2 - start index
-      word - remove all words but ones on given positions, starting from 1
-        param1...n - keep word number <param>
-      allbut - reverse of word modifier - print all words but ones on given positions
-      replace - replace all occurences of string(s) with another string(s)
-        Note: As of now only supports replacing plain text with plain text.
-        param1 - string to replace
-        param2 - what to replace it with
-        param3,4 - another pair of what to replace and with what
-        param5,6 - same
-        and so on
-      remove - remove all occurences of param
-        param1...n - strins to remove
-      append - append text to the end of input
-        params - text to append
-  Following characters have to be escaped(preceded with '\') to be printed:
-    ':' - will not be printed otherwise
-    '[' - will begin a container otherwise
-    ']' - will end current container and/or break the expression otherwise
-    '\' - will be ignored and/or escape next character otherwise
-    '-' - will be ignored otherwise
-    '$' - will be ignored otherwise
-  Other escape sequences:
-    \n - newline
-    \t - tab
-
-DBUS script for libpurple:
-  Commands:
-    !...text... - interpret text, ignoring first '!'
-    go 5 - send 5 random sentences from lolwut.py. Used mainly for testing and fun, please don't spam with it too much
-    set counter 2 - for every message from ene- I mean friend reply with 2 random sentences
-  Notes:
-    People who talk to you are also able to use !stuff, be wary
+    Basic elements:
+        text - normal text to be printed
+        $word - search data/words for key 'word' and pick random word of such category
+        $variable - retrieve variable name
+        $anything - reserved, will pick random category and then random word from it
+        [ ... ] - container, can contain anything else
+        [ ... | ... ] - randomly chose one of options separated by '|'
+    Operators:
+        []%25 - chance for contents of container to appear
+        []{5} - repeat contents 5 times
+        []{2-6} - repeat contents 2 to 6 times
+        []<modifier param1 param2 ...> - modify results of code block.
+        Operator order:
+            You can of course use multiple operators on one block, but you must keep them in following order:
+                1) <modifier>
+                2) {repeat}
+                3) %chance
+            If you wish to use them in different order, enclose code in [] and apply operators to that block
+    Modifiers:
+        Simple:
+            jumble - jumble words, preserve spaces, punctation marks, etc.
+            flip - flip words ( reverse letters in words
+            reverse - reverse whole text
+            acronym - create an acronym of given words
+            randcase - randomize case of individual letters
+            upper - turn the text uppercase
+            lower - turn the text lowercase
+            mix - randomize order of words
+        With parameters:
+            alternate - when this is repeated, instead of randomly chosing options from code block, alternate between them
+                param1 - 1 for reverse order?
+                param2 - start index
+            word - remove all words but ones on given positions, starting from 1
+                param1...n - keep word number <param>
+            allbut - reverse of word modifier - print all words but ones on given positions
+            replace - replace all occurences of string(s) with another string(s)
+                Note: As of now only supports replacing plain text with plain text.
+                param1 - string to replace
+                param2 - what to replace it with
+                param3,4 - another pair of what to replace and with what
+                param5,6 - same
+                and so on
+            remove - remove all occurences of param
+                param1...n - strins to remove
+            append - append text to the end of input
+                params - text to append
+    Following characters are tokens and should be escaped if you want to prevent unwanted behavior:
+        '[' - will begin a container otherwise
+        ']' - will end current container and/or break the expression otherwise
+        '\' - will be ignored and/or escape next character otherwise
+        '-' - will be ignored otherwise
+        '$' - will be ignored otherwise
+        '<' - will be ignored otherwise or start a modifier if used after []'s
+        '>' - will be ignored otherwise
+    Other escape sequences:
+        \n - newline
+        \t - tab
 
 API:
-  parser.py:
-    functions:
-      tokenize(text) - returns sequence of tokens with non-token characters returned as strings
-      parse(text) - parses text and returns an AST structure of type "sequence", using intermediate parser object
-    classes:
-      parser:
-        You probably don't have much use for it, use top-level parse(text) function instead
-        parse(text) - parse text and return AST structure
-      AST nodes(for example sequence):
-        to_string() - execute(generate) AST, return text
-        structure() - traverse the AST and print it's structure in text format
-        optimize() - some basic optimizations, as of now merges text() nodes
+    parser.py:
+        functions:
+            tokenize(text) - returns sequence of tokens with non-token characters returned as strings
+            parse(text) - parses text and returns an AST structure of type "sequence", using intermediate parser object
+        classes:
+            parser:
+                You probably don't have much use for it, use top-level parse(text) function instead
+                parse(text) - parse text and return AST structure
+            AST nodes(for example sequence):
+                to_string(environment) - execute(generate) AST, return text
+                structure() - traverse the AST and print it's structure in text format
+                optimize() - some basic optimizations, as of now merges text() nodes
+            environment:
+			    constructor parameters:
+			        input=""
+			        variables = {}
 
 TODO:
-  -Allow using parser.py module like you would use awk or sed
-  -Add $input
-  -Write generic dbus script that will execute scripts and use their output instead of a wrapper around my parser and lolwut
-  -There is a weird bug with []'s containing ^ and other weird characters and % operator
-  -Prevent too much repeats to save your PC from evil people
-  -Add a way to number lines/other stuff
-  -Clean up the code
-  -Add a way to repeat results of []'s ("baka baka baka" instead of "$idiot_word $idiot_word $idiot_word" which turns into "idiot baka moron")
+    -Write generic dbus script that will execute scripts and use their output instead of a wrapper around my parser and lolwut
+    -There is a weird bug with []'s containing ^ and other weird characters and % operator
+    -Prevent too much repeats to save your PC from evil people
+    -Clean up the code
+    -Add a way to repeat results of []'s ("baka baka baka" instead of "$idiot_word $idiot_word $idiot_word" which turns into "idiot baka moron")
+    -Add functions and variable assignment
