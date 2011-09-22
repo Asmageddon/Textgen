@@ -18,11 +18,14 @@ class environment(object):
 		self.variables = {}
 		self.variables["input"] = input
 		self.variables.update(variables)
+		#print self.variables, variables
 		self.var_count = 0
 	def lookup(self, name):
 		if self.variables.has_key(name):
+			print "[INFO] Found variable '%s'" % name
 			return self.variables[name]
 		else:
+			print "[INFO] Didn't find variable '%s'" % name
 			return "" #Because we'll be only using strings anyway
 	def add(self, value, name = None):
 		if name == None:
@@ -639,6 +642,7 @@ def parse(text):
 def get_text(text, input = "", variables = {}):
 	p = parser()
 	env = environment(input, variables)
+	print 111, variables
 	return p.parse(text).to_string(env)
 
 

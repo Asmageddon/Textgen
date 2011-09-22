@@ -41,12 +41,24 @@ class MyPurpleInterface:
 		print "[%s] -> [%s]: %s" % (account, receiver, message)
 
 		conversation = purple.PurpleConvIm(conv)
+
+		buddy_acc = purple.PurpleFindBuddy(account, receiver)
+		buddy_name = purple.PurpleBuddyGetAliasOnly(buddy_acc)
+
+		variables = {
+			#'buddy':purple.PurpleBuddyGetAlias(account),
+			'self':purple.PurpleAccountGetNameForDisplay(account),
+			#'self':purple.PurpleBuddyGetAliasOnly(account),
+			'buddy':buddy_name
+		}
+
+		print variables
+
 		if len(message)>1:
 			if message[0]=="!":
-				reply = parser.get_text(message[1:])
+				reply = parser.get_text(message[1:], message[1:], variables)
 				purple.PurpleConvImSend(conversation, reply)
 			elif self.counter != "" and message[-1]!=" ":
-				variables = {}
 				reply = parser.get_text(self.counter, message, variables)+" "
 				purple.PurpleConvImSend(conversation, reply)
 	def sending(self, account, receiver, message):
@@ -56,9 +68,17 @@ class MyPurpleInterface:
 		conv = purple.PurpleFindConversationWithAccount(4, receiver, account)
 		conversation = purple.PurpleConvIm(conv)
 
+		buddy_acc = purple.PurpleFindBuddy(account, receiver)
+		buddy_name = purple.PurpleBuddyGetAliasOnly(buddy_acc)
+
+		variables = {
+			'self':purple.PurpleAccountGetNameForDisplay(account),
+			#'self':purple.PurpleBuddyGetAliasOnly(account),
+			'buddy':buddy_name
+		}
+
 		if len(message)>1:
 			if message[0]=="!":
-				variables = {}
 				reply = parser.get_text(message[1:], "", variables)
 				purple.PurpleConvImSend(conversation, reply)
 			elif len(message) >= 8:
