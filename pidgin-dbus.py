@@ -71,7 +71,6 @@ class MyPurpleInterface:
 			'self':unicode(purple.PurpleAccountGetNameForDisplay(account)),
 			'buddy':unicode(buddy_name)
 		}
-		print variables
 
 		if len(message)>1:
 			if message[0]=="!":

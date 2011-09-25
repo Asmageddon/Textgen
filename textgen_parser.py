@@ -416,7 +416,9 @@ class modifier_word(modifier):
 		for i in index:
 			if i > len(pieces)//2 or i < 0: continue
 			else:
-				result += pieces[i*2] + pieces[i*2+1]
+				result += pieces[i*2]
+				if i < len(pieces)//2:
+					result += pieces[i*2+1]
 		return result
 class modifier_allbut(modifier):
 	def modify(self, value):
