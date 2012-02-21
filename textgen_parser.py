@@ -30,7 +30,6 @@ class environment(object):
 		self.variables = {}
 		self.variables["input"] = input
 		self.variables.update(variables)
-		#print self.variables, variables
 		self.var_count = 0
 	def lookup(self, name):
 		if self.variables.has_key(name):
@@ -545,9 +544,18 @@ def tokenize(string):
 			elif char == '\\':
 				escape = 1
 				continue
-			result += [token(token_type, "")]
+			if not escape:
+				result += [token(token_type, "")]
 		else:
-			if char in "0123456789":
+			if escape:
+				token_type = t_whitespace
+				if   char == "n": char = "\n"
+				elif char == "r": char = "\r"
+				else:
+					token_type = t_string
+				token_content = char
+				#result += [ token(t_string, p_char) ]
+			elif char in "0123456789":
 				token_type = t_number
 			elif char in word_separation:
 				token_type = t_whitespace
