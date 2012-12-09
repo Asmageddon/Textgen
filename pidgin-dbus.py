@@ -5,6 +5,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 
 import textgen_parser as parser
 
+
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 bus = dbus.SessionBus()
 
@@ -38,7 +39,7 @@ class MyPurpleInterface:
 		self.counter = ""
 	def received(self, account, receiver, message, conv, flags):
 		message = unformat(message)
-		print "[%s] -> [%s]: %s" % (account, receiver, message)
+		print "[%s] -> [%s]: %s" % (receiver, account, message)
 
 		conversation = purple.PurpleConvIm(conv)
 
